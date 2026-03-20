@@ -17,7 +17,7 @@ export const BulkActionControls = observer(({ table, rowSelection }: { table: an
   const store = React.useContext(StoreContext);
   const [deleteInProgress, setDeleteInProgress] = React.useState(false);
   const [fetchInProgress, setFetchInProgress] = React.useState(false);
-  const selectedRows = useMemo(() => table.getFilteredSelectedRowModel().rows, [rowSelection, table]);
+  const selectedRows = useMemo(() => table.getFilteredSelectedRowModel().rows, [rowSelection, table]); // eslint-disable-line react-hooks/exhaustive-deps
   const selectedRowsCount = selectedRows.length;
   const selectedItemIds = useMemo(() => selectedRows.map((row) => row.original.id), [selectedRows]);
 
