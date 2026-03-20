@@ -3,7 +3,7 @@ import { flexRender } from '@tanstack/react-table';
 
 export const TitleFormatter = ({ output }) => {
   return (
-    <h4 className="line-clamp-3 scroll-m-20 font-semibold tracking-tight @xl/item:text-lg @3xl/item:text-xl">
+    <h4 className="line-clamp-3 scroll-m-20 font-semibold tracking-tight wrap-anywhere @xl/item:text-lg @3xl/item:text-xl">
       {output}
     </h4>
   );
@@ -15,7 +15,7 @@ export const URLFormatter = ({ output }) => {
 
 export const DescriptionFormatter = ({ output }) => {
   return (
-    <div className="text-muted-foreground line-clamp-3 text-sm leading-6 whitespace-pre-line @3xl/item:line-clamp-none">
+    <div className="text-muted-foreground line-clamp-3 text-sm leading-6 wrap-anywhere whitespace-pre-line @3xl/item:line-clamp-none">
       {output}
     </div>
   );
@@ -23,7 +23,7 @@ export const DescriptionFormatter = ({ output }) => {
 
 export const NotesFormatter = ({ output }) => {
   return (
-    <blockquote className="text-muted-foreground line-clamp-3 border-l-2 pl-6 text-sm whitespace-pre-line italic @3xl/item:line-clamp-none">
+    <blockquote className="text-muted-foreground line-clamp-3 border-l-2 pl-6 text-sm wrap-anywhere whitespace-pre-line italic @3xl/item:line-clamp-none">
       {output}
     </blockquote>
   );

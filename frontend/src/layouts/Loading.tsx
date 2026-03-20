@@ -4,14 +4,7 @@ import React from 'react';
 
 export default function Loading() {
   return (
-    <SidebarProvider
-      style={
-        {
-          '--sidebar-width': 'calc(var(--spacing) * 72)',
-          '--header-height': 'calc(var(--spacing) * 14)',
-        } as React.CSSProperties
-      }
-    >
+    <SidebarProvider>
       {/* Sidebar Skeleton */}
       <div className="bg-sidebar hidden h-screen w-72 flex-col border-r md:flex">
         <div className="flex h-12 items-center gap-2 px-4">

@@ -162,27 +162,6 @@ a:hover {
 }
 
 @layer components {
-  .sidebar-menu-action {
-    visibility: hidden;
-  }
-
-  [data-slot='sidebar-menu-item'] > .peer\/menu-button:hover ~ .sidebar-menu-action,
-  .sidebar-menu-action:hover,
-  .sidebar-menu-action[data-state='open'] {
-    visibility: visible;
-  }
-
-  /*Show dots on selected menu*/
-  [data-selected='true'] > .sidebar-menu-action:not([data-state='open']):not(:hover) {
-    color: var(--color-accent) !important;
-  }
-
-  @media (any-pointer: coarse) {
-    .sidebar-menu-action {
-      visibility: visible !important;
-    }
-  }
-
   .item-list--cards {
     .item__image-container {
       @apply -mt-6 -mr-6 -ml-6;

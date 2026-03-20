@@ -13,8 +13,10 @@ import {
   UserType,
 } from '@/lib/types.ts';
 import { getCookie } from '@/lib/utils.ts';
+import { preferencesStore } from './preferencesStore.ts';
 
-class mainStore {
+class MainStore {
+  prefStore: typeof preferencesStore;
   items: ItemType[] = [];
   tags: TagsObjectType = [];
   user: UserType | null = null;
@@ -44,7 +46,8 @@ class mainStore {
   ^ Demo
   */
 
-  constructor() {
+  constructor(prefStore) {
+    this.prefStore = prefStore;
     makeAutoObservable(this); // Makes state observable and actions transactional
   }
 
@@ -111,6 +114,34 @@ class mainStore {
   setTagFilter = (val: TagFilterType) => {
     this.tagFilter = val;
   };
+
+  get itemListFilters() {
+    const tagFilter = this.tagFilter;
+    const responseOutput = (val: any) => ({
+      tags: val,
+    });
+
+    if (tagFilter === null || tagFilter === 'none') {
+      return responseOutput(tagFilter);
+    }
+
+    if (!this.prefStore.includeNestedTagItems) {
+      return responseOutput([tagFilter]);
+    }
+
+    const selectedTag = this.tags[tagFilter] ?? null;
+    // Tag doesn't exist. This can happen when user manually changes URL to a non existing tag ID or when the selected tag has been deleted since the last load.
+    if (!selectedTag) {
+      return responseOutput([tagFilter]);
+    }
+
+    const childTagIDs = this.tagsArray
+      .filter((tag) => tag.fullPathIDs.startsWith(`${selectedTag.fullPathIDs}/`) && tag.id !== selectedTag.id)
+      .map((tag) => tag.id);
+
+    return responseOutput([selectedTag.id, ...childTagIDs]);
+  }
+
   setUser = (user: UserType) => {
     this.user = user;
   };
@@ -120,25 +151,40 @@ class mainStore {
   };
   setTags = (tags: TagsObjectType) => {
     const renderTagSegment = (tag: TagType) => {
-      let output = '';
+      let fullPath = '';
+      let fullPathIDs = '';
       if (tag.parent !== 0) {
-        const parentTag = Object.values(tags).find((t) => t.id === tag.parent);
+        const parentTag = tags[tag.parent];
         if (parentTag) {
-          output += renderTagSegment(parentTag) + '/';
+          const paths = renderTagSegment(parentTag);
+          fullPath += paths.fullPath + '/';
+          fullPathIDs += paths.fullPathIDs + '/';
         }
       }
-      output += tag.title.replaceAll('/', '\\/');
-      return output;
+      fullPath += tag.title.replaceAll('/', '\\/');
+      fullPathIDs += String(tag.id);
+      return { fullPath, fullPathIDs };
     };
 
     for (const tagID in tags) {
       const tag = tags[tagID];
-      tag.fullPath = renderTagSegment(tag);
+      const { fullPath, fullPathIDs } = renderTagSegment(tag);
+      tag.fullPath = fullPath;
+      tag.fullPathIDs = fullPathIDs;
       tag.pinned = !!tag.pinned;
     }
 
     this.tags = tags as TagsObjectType;
   };
+  get tagsArray() {
+    const tagsArray = Object.values(this.tags) as TagType[];
+
+    tagsArray.sort((a, b) => {
+      return a.fullPath.localeCompare(b.fullPath);
+    });
+
+    return tagsArray;
+  }
   setIsAuthRequired = (val: boolean) => {
     this.isAuthRequired = val;
   };
@@ -151,34 +197,36 @@ class mainStore {
     });
   };
   createTag = async (title: string): Promise<number | null> => {
-    let tagID = null;
+    const response = await this.runRequest(API_ENDPOINTS.tags.create, 'POST', { title }, 'Error creating tag');
 
-    await this.runRequest(API_ENDPOINTS.tags.create, 'POST', { title }, 'Error creating tag')
-      .then((data) => {
-        tagID = (data?.data?.tag_id as number) || null;
-      })
-      .finally(() => {
-        this.fetchTags();
-      });
-
-    return tagID;
-  };
-  onDeleteTag = async (tagID: number) => {
-    if (!confirm('Are you sure you want to delete this tag?')) {
-      return;
+    if (response === null || !response?.data?.tag_id) {
+      return null;
     }
 
+    await this.fetchTags();
+
+    return response.data.tag_id;
+  };
+  onDeleteTag = async (tagID: number) => {
     return this.runRequest(API_ENDPOINTS.tags.deleteTag(tagID), 'DELETE', {}, 'Error deleting tag').finally(() => {
       this.fetchTags();
       this.fetchItems();
     });
   };
-  onChangeTagTitle = async (tagID: number, title: string) => {
-    this.runRequest(API_ENDPOINTS.tags.updateTitle(tagID), 'PATCH', { title }, 'Error updating tag title').finally(
-      () => {
-        this.fetchTags();
-      }
+  updateTag = async (tagID: number, parent: number, title: string, description: string) => {
+    const response = await this.runRequest(
+      API_ENDPOINTS.tags.update(tagID),
+      'PATCH',
+      { parent, title, description },
+      'Error updating tag'
     );
+
+    if (response === null) {
+      return false;
+    }
+
+    this.fetchTags();
+    return true;
   };
   onChangeTagColor = async (tagID: number, color: string) => {
     return this.runRequest(
@@ -191,16 +239,20 @@ class mainStore {
       this.tags = { ...this.tags, [tagID]: tag };
     });
   };
-  onChangeTagPinned = async (tagID: number, pinned: boolean) => {
-    return this.runRequest(
+  updateTagPinned = async (tagID: number, pinned: boolean) => {
+    const response = await this.runRequest(
       API_ENDPOINTS.tags.updatePinned(tagID),
       'PATCH',
       { pinned },
       'Error updating tag pinned'
-    ).finally(() => {
-      const tag = { ...this.tags[tagID], pinned };
-      this.tags = { ...this.tags, [tagID]: tag };
-    });
+    );
+    if (response === null) {
+      return false;
+    }
+
+    const tag = { ...this.tags[tagID], pinned };
+    this.tags = { ...this.tags, [tagID]: tag };
+    return true;
   };
 
   setItems = (val: ItemType[]) => {
@@ -279,13 +331,27 @@ class mainStore {
     data.url = encodeURI(decodeURI(data.url));
     data.image = encodeURI(decodeURI(data.image));
 
-    return this.runRequest(API_ENDPOINTS.items.createItem, 'POST', data, 'Failed to create item', skipSuccessMessage);
+    const response = await this.runRequest(
+      API_ENDPOINTS.items.createItem,
+      'POST',
+      data,
+      'Failed to create item',
+      skipSuccessMessage
+    );
+
+    if (!response) {
+      return false;
+    }
+
+    this.fetchTags();
+    this.fetchItems();
+    return true;
   };
   updateItem = async (data: ItemType, itemId, forceImageRefetch: boolean) => {
     data.url = encodeURI(decodeURI(data.url));
     data.image = encodeURI(decodeURI(data.image));
 
-    return this.runRequest(
+    const response = await this.runRequest(
       API_ENDPOINTS.items.updateItem(itemId),
       'PATCH',
       {
@@ -294,6 +360,13 @@ class mainStore {
       } as ItemType & { 'force-image-refetch': boolean },
       'Failed to update item'
     );
+    if (!response) {
+      return false;
+    }
+
+    this.fetchTags();
+    this.fetchItems();
+    return true;
   };
   getUser = async (noErrorEmit: boolean = false) => {
     const response = await this.runRequest(
@@ -458,4 +531,4 @@ class mainStore {
   };
 }
 
-export default new mainStore();
+export const mainStore = new MainStore(preferencesStore);

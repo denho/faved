@@ -16,8 +16,8 @@ use Controllers\TagsController;
 use Controllers\TagsCreateController;
 use Controllers\TagsDeleteController;
 use Controllers\TagsUpdateColorController;
+use Controllers\TagsUpdateController;
 use Controllers\TagsUpdatePinnedController;
-use Controllers\TagsUpdateTitleController;
 use Controllers\UrlMetadataController;
 use Controllers\UserCreateController;
 use Controllers\UserDeleteController;
@@ -49,11 +49,11 @@ return [
 				'POST' => TagsCreateController::class,
 				'DELETE' => TagsDeleteController::class,
 			],
+			'update' => [
+				'PATCH' => TagsUpdateController::class,
+			],
 			'update-pinned' => [
 				'PATCH' => TagsUpdatePinnedController::class,
-			],
-			'update-title' => [
-				'PATCH' => TagsUpdateTitleController::class,
 			],
 			'update-color' => [
 				'PATCH' => TagsUpdateColorController::class,

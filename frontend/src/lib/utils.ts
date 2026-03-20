@@ -17,13 +17,20 @@ export const colorMap = {
   black: 'bg-neutral-950',
 };
 
+export const getColorClass = (color: string | undefined) => {
+  return colorMap[color as keyof typeof colorMap] || colorMap.gray;
+};
+
+export const normalizeQuery = (val) => {
+  return val
+    .trim()
+    .replace(/\/+/g, '/')
+    .replace(/^\/|\/$/g, '')
+    .trim();
+};
+
 export const getSavedLayoutPreference = (): LayoutType => {
-  try {
-    const stored: LayoutType = localStorage.getItem('layout') as LayoutType;
-    return stored || 'list';
-  } catch {
-    return 'list';
-  }
+  return (localStorage.getItem('layout') as LayoutType) || 'list';
 };
 
 export const saveLayoutPreference = (value: LayoutType): void => {

@@ -2,66 +2,42 @@ import React from 'react';
 import { Badge } from '../../ui/badge.tsx';
 import { observer } from 'mobx-react-lite';
 import { StoreContext } from '@/store/storeContext.ts';
-import { colorMap } from '@/lib/utils.ts';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip.tsx';
 import { useItemListState } from '@/hooks/useItemListState.ts';
-
-export const getColorClass = (color: string | undefined) => {
-  return colorMap[color as keyof typeof colorMap] || colorMap.gray;
-};
-
-const formatTagPathForDisplay = (path) => {
-  return path.replaceAll('\\/', '/');
-};
-
-export const TagBadgeMini: React.FC<{ tagID: number }> = observer(({ tagID }) => {
-  const store = React.useContext(StoreContext);
-  const tag = store.tags[tagID];
-  if (!tag) {
-    return null;
-  }
-  const fullPath = formatTagPathForDisplay(tag.fullPath);
-  const colorClass = getColorClass(tag.color);
-
-  return (
-    <Badge variant="secondary">
-      <span className={`h-3 w-3 flex-none rounded-full ${colorClass}`}></span>
-      <span>{fullPath}</span>
-    </Badge>
-  );
-});
+import { TagPath } from '@/components/EditItem/TagPath.tsx';
 
 export const TagBadge: React.FC<{ tagID: number }> = observer(({ tagID }) => {
   const store = React.useContext(StoreContext);
-  const tag = store.tags[tagID] ?? null;
+  const tag = store.tags[tagID];
   const { setTagFilter } = useItemListState();
 
   if (!tag) {
     return null;
   }
 
-  const fullPath = formatTagPathForDisplay(tag.fullPath);
-  const tagTitle = tag.title;
   const isTagSelected = store.tagFilter === tagID;
+  const isParentTagSelected =
+    !isTagSelected && Array.isArray(store.itemListFilters.tags) && store.itemListFilters.tags.includes(tagID);
 
   const setTag = () => {
     setTagFilter(tagID);
   };
 
-  const colorClass =
-    tag.color && colorMap[tag.color as keyof typeof colorMap]
-      ? colorMap[tag.color as keyof typeof colorMap]
-      : colorMap.gray;
-
   return (
     <Tooltip delayDuration={500}>
       <TooltipTrigger asChild>
-        <Badge variant={isTagSelected ? 'outline' : 'secondary'} className="cursor-pointer" onClick={setTag}>
-          <span className={`h-3 w-3 flex-none rounded-full ${colorClass}`}></span>
-          <span>{tagTitle}</span>
+        <Badge
+          variant={isTagSelected || isParentTagSelected ? 'outline' : 'secondary'}
+          className="cursor-pointer"
+          onClick={setTag}
+        >
+          <TagPath tag={{ label: tag.fullPath, color: tag.color }} showLast={true} />
         </Badge>
       </TooltipTrigger>
-      <TooltipContent>{fullPath}</TooltipContent>
+      <TooltipContent>
+        <TagPath tag={{ label: tag.fullPath, color: tag.color }} />
+        {tag.description !== '' && <p className="mt-2 max-w-md whitespace-pre-wrap">{tag.description}</p>}
+      </TooltipContent>
     </Tooltip>
   );
 });

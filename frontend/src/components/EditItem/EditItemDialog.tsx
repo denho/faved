@@ -11,8 +11,16 @@ export const EditItemDialog = observer(() => {
   }, [store.items, store.modalOpenItemID]);
 
   return (
-    <Dialog onOpenChange={store.setIsItemModalOpen} open={store.isItemModalOpen}>
+    <Dialog onOpenChange={store.setIsItemModalOpen} modal={true} open={store.isItemModalOpen}>
       <DialogContent
+        onEscapeKeyDown={(e) => {
+          e.preventDefault();
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            store.setIsItemModalOpen(false);
+          }
+        }}
         aria-describedby={undefined}
         onOpenAutoFocus={(e) => e.preventDefault()}
         className="w-[100dvw] max-w-6xl rounded-none p-0 md:w-[95dvw] md:rounded-lg"

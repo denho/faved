@@ -11,10 +11,10 @@ export default [
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
-  // {
-  //   ...reactRefresh.configs.vite,
-  //   ignores: ['src/components/ui/**'],
-  // },
+  {
+    //   ...reactRefresh.configs.vite,
+    ignores: ['src/components/ui/**'],
+  },
   {
     files: ['**/*.{ts,tsx}'],
     ignores: ['**/vite.config.ts'],

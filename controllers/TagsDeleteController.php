@@ -8,7 +8,7 @@ use Framework\Exceptions\ValidationException;
 use Framework\Responses\ResponseInterface;
 use Framework\ServiceContainer;
 use Models\Repository;
-use function Framework\data;
+use function Framework\success;
 use function Utils\groupTagsByParent;
 
 class TagsDeleteController implements ControllerInterface
@@ -28,28 +28,28 @@ class TagsDeleteController implements ControllerInterface
 			throw new ValidationException("Tag with ID $tag_id does not exist");
 		}
 
+		// Delete all child tags as well
 		$tags_by_parent = groupTagsByParent($all_tags);
-		if (isset($tags_by_parent[$tag_id])) {
-			throw new ValidationException("Tag can't be deleted as it has child tags. Please delete child tags first.");
-		}
+		$tags_to_delete = [$tag_id, ...$tags_by_parent[$tag_id] ?? []];
 
+		// Delete tags associations with items
 		$repository = ServiceContainer::get(Repository::class);
-		$result = $repository->deleteItemTag($tag_id);
+		$result = $repository->deleteTagsItemAttachment($tags_to_delete);
 
 		if (false === $result) {
-			throw new DataWriteException("Error removing tag from items");
+			throw new DataWriteException("Error removing tag item associations");
 		}
 
-		$result = $repository->deleteTag($tag_id);
+		// Delete tags
+		$result = $repository->deleteTags($tags_to_delete);
 
 		if (false === $result) {
 			throw new DataWriteException("Error deleting tag");
 		}
 
-		return data([
-			'success' => true,
-			'message' => 'Tag deleted successfully',
-		]);
+		return success(
+			(count($tags_to_delete) > 1 ? count($tags_to_delete) . ' tags' : 'Tag') . ' deleted successfully',
+		);
 	}
 
 }

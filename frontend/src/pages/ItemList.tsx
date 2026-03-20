@@ -45,13 +45,12 @@ import {
 import { Button } from '@/components/ui/button.tsx';
 import { PlusIcon, Settings2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { SidebarTrigger } from '@/components/ui/sidebar.tsx';
-import { Separator } from '@/components/ui/separator.tsx';
 import { Dashboard } from '@/layouts/Dashboard.tsx';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
 import { BulkActionControls } from '@/components/Table/Controls/BulkActionControls.tsx';
 import { useUrlState } from '@/hooks/useUrlState.ts';
 import { useItemListState } from '@/hooks/useItemListState.ts';
+import { SidebarToggler } from '@/components/Sidebar/SidebarToggler.tsx';
 
 const columns: ColumnDef<ItemType>[] = [
   {
@@ -99,14 +98,8 @@ const columns: ColumnDef<ItemType>[] = [
     enableHiding: true,
     meta: { class: 'min-w-xs' },
     cell: ({ row }) => {
-      return (
-        <span
-          // className="line-clamp-3 scroll-m-20 text-xl font-semibold tracking-tight"
-          title={row.getValue('title')}
-        >
-          {row.getValue('title')}
-        </span>
-      );
+      const value = row.getValue('title') as string;
+      return <span title={value}>{value}</span>;
     },
   },
   {
@@ -116,9 +109,10 @@ const columns: ColumnDef<ItemType>[] = [
     enableHiding: true,
     meta: { class: 'min-w-xs break-all\n' },
     cell: ({ row }) => {
+      const value = row.getValue('url') as string;
       return (
-        <a className="underline" href={row.getValue('url')} target="_blank" rel="noopener noreferrer">
-          {row.getValue('url')}
+        <a className="underline" href={value} target="_blank" rel="noopener noreferrer">
+          {value}
         </a>
       );
     },
@@ -130,16 +124,15 @@ const columns: ColumnDef<ItemType>[] = [
     enableHiding: true,
     meta: { class: 'min-w-xs' },
 
-    filterFn: (row, columnId, filterValue: TagFilterType) => {
+    filterFn: (row, columnId, filterValue: number[] | 'none' | null) => {
       if (filterValue === null) {
         return true;
       }
       const tagIDs = row.getValue('tags') as number[];
-      if (filterValue === 'none' && tagIDs.length === 0) {
-        return true;
+      if (filterValue === 'none') {
+        return tagIDs.length === 0;
       }
-
-      return tagIDs.includes(filterValue as number);
+      return tagIDs.some((val) => filterValue.includes(val));
     },
     cell: ({ row }) => {
       const tagIDs = row.getValue('tags') as number[];
@@ -214,11 +207,13 @@ const Table: React.FC = observer(() => {
   }, [searchParams]);
 
   const [globalFilter, setGlobalFilter] = React.useState<string>(searchKeywordParam);
-  const isInitialMount = React.useRef(true);
+
+  const tagColumnFilter = store.itemListFilters.tags;
+
   const columnFilters: ColumnFiltersState = [
     {
       id: 'tags',
-      value: isInitialMount ? (store.tagFilter ?? tagFilterParam) : store.tagFilter,
+      value: tagColumnFilter,
     },
   ];
   const [rowSelection, setRowSelection] = React.useState({});
@@ -333,7 +328,6 @@ const Table: React.FC = observer(() => {
   const { setTagFilter } = useItemListState();
   // Update state from navigation changes
   useEffect(() => {
-    isInitialMount.current = false;
     if (store.tagFilter === tagFilterParam) {
       return;
     }
@@ -447,11 +441,9 @@ const Table: React.FC = observer(() => {
   };
 
   return (
-    <>
-      <header className="bg-background sticky top-0 z-50 flex h-(--header-height) w-full items-center gap-1.5 border-b px-4 backdrop-blur-sm group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
-        <SidebarTrigger />
-        <Separator orientation="vertical" className="mx-1 data-[orientation=vertical]:h-8" />
-
+    <div className="flex h-full flex-col">
+      <header className="bg-background sticky top-0 z-50 flex h-14 w-full items-center gap-1.5 border-b px-4 backdrop-blur-sm group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+        <SidebarToggler />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">
@@ -470,14 +462,12 @@ const Table: React.FC = observer(() => {
           </DropdownMenuContent>
         </DropdownMenu>
         <Search table={table} globalFilter={globalFilter} />
-
         <Sorter
           selectedSortColumn={sorting[0]?.id}
           isDesc={sorting[0]?.desc}
           onChange={updateSorting}
           columns={sortableColumns}
         />
-
         <Button
           variant="default"
           onClick={() => {
@@ -489,7 +479,7 @@ const Table: React.FC = observer(() => {
         </Button>
       </header>
 
-      <div className="flex-1 overflow-hidden">
+      <div className="h-full overflow-x-clip overflow-y-scroll">
         {currentRows.length > 0 ? (
           <div className={`flex h-full flex-col justify-between gap-5 item-list--${layout}`}>
             {layouts[layout]}
@@ -498,9 +488,9 @@ const Table: React.FC = observer(() => {
         ) : (
           <div className="text-muted-foreground flex h-full items-center justify-center text-lg">No items.</div>
         )}
-        <BulkActionControls table={table} />
+        <BulkActionControls table={table} rowSelection={rowSelection} />
       </div>
-    </>
+    </div>
   );
 });
 

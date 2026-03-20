@@ -4,7 +4,6 @@ namespace Controllers;
 
 use Framework\ControllerInterface;
 use Framework\Exceptions\DataWriteException;
-use Framework\Exceptions\ValidationException;
 use Framework\Responses\ResponseInterface;
 use Framework\ServiceContainer;
 use Models\Item;
@@ -12,6 +11,7 @@ use Models\ItemCreator;
 use Models\Repository;
 use Respect\Validation\Validator;
 use function Framework\success;
+use function Utils\processInputTags;
 
 class ItemsCreateController implements ControllerInterface
 {
@@ -29,13 +29,8 @@ class ItemsCreateController implements ControllerInterface
 	{
 		$repository = ServiceContainer::get(Repository::class);
 
-		// Handle tags
-		$input_tag_ids = array_map('intval', $input['tags']);
-		$tags = $repository->getTags();
-		$exising_tag_ids = array_keys($tags);
-		if (array_diff($input_tag_ids, $exising_tag_ids)) {
-			throw new ValidationException('Non-existing tags provided');
-		}
+		// Handle tags (can throw an excepion)
+		$tag_ids = processInputTags($input['tags']);
 
 		// Save item in DB
 		$item_creator = ServiceContainer::get(ItemCreator::class);
@@ -46,7 +41,7 @@ class ItemsCreateController implements ControllerInterface
 				$input['description'],
 				$input['image'] ?? '',
 				$input['comments'] ?? '',
-				$input_tag_ids
+				$tag_ids
 			)
 		]);
 

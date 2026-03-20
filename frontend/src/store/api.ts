@@ -20,7 +20,7 @@ export const API_ENDPOINTS = {
     list: `${API_BASE}/tags`,
     create: `${API_BASE}/tags`,
     deleteTag: (id: any) => `${API_BASE}/tags?tag-id=${id}`,
-    updateTitle: (id: any) => `${API_BASE}/tags/update-title?tag-id=${id}`,
+    update: (id: any) => `${API_BASE}/tags/update?tag-id=${id}`,
     updateColor: (id: any) => `${API_BASE}/tags/update-color?tag-id=${id}`,
     updatePinned: (id: any) => `${API_BASE}/tags/update-pinned?tag-id=${id}`,
   },

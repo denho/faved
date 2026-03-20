@@ -21,17 +21,17 @@ ServiceContainer::bind(PDO::class, function () {
 	return $pdo;
 });
 
-ServiceContainer::bind(Models\Repository::class, function () {
+ServiceContainer::bind(Models\Repository::class, function (): Models\Repository {
 	$pdo = ServiceContainer::get(PDO::class);
 	return new Models\Repository($pdo);
 });
 
-ServiceContainer::bind(TagCreator::class, function () {
+ServiceContainer::bind(TagCreator::class, function (): TagCreator {
 	$pdo = ServiceContainer::get(PDO::class);
 	return new TagCreator($pdo);
 });
 
-ServiceContainer::bind(ItemCreator::class, function () {
+ServiceContainer::bind(ItemCreator::class, function (): ItemCreator {
 	$pdo = ServiceContainer::get(PDO::class);
 	return new ItemCreator($pdo);
 });

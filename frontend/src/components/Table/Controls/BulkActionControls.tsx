@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import { RefreshCw, Square, SquareCheckBig, SquareMinus, TagsIcon, Trash, X } from 'lucide-react';
 import { StoreContext } from '@/store/storeContext.ts';
@@ -9,19 +9,21 @@ import { useSidebar } from '@/components/ui/sidebar.tsx';
 import { cn } from '@/lib/utils.ts';
 import { TagSelect } from '@/components/Table/Controls/TagSelect.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
+import { observer } from 'mobx-react-lite';
 
-export const BulkActionControls = ({ table }) => {
+export const BulkActionControls = observer(({ table, rowSelection }: { table: any; rowSelection: any }) => {
   const { isMobile, state } = useSidebar();
   const enableSidebarIndent = !isMobile && state === 'expanded';
   const store = React.useContext(StoreContext);
   const [deleteInProgress, setDeleteInProgress] = React.useState(false);
   const [fetchInProgress, setFetchInProgress] = React.useState(false);
-  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const selectedRows = useMemo(() => table.getFilteredSelectedRowModel().rows, [rowSelection, table]);
   const selectedRowsCount = selectedRows.length;
+  const selectedItemIds = useMemo(() => selectedRows.map((row) => row.original.id), [selectedRows]);
 
   const deleteSelected = async () => {
     setDeleteInProgress(true);
-    const result = await store.deleteItems(selectedRows.map((row) => row.original.id));
+    const result = await store.deleteItems(selectedItemIds);
     if (!result) {
       return;
     }
@@ -32,7 +34,7 @@ export const BulkActionControls = ({ table }) => {
 
   const refetchSelected = async () => {
     setFetchInProgress(true);
-    const result = await store.refetchItemsMetadata(selectedRows.map((row) => row.original.id));
+    const result = await store.refetchItemsMetadata(selectedItemIds);
     if (result) {
       store.fetchItems();
     }
@@ -41,7 +43,7 @@ export const BulkActionControls = ({ table }) => {
 
   const updateTagsSelected = async ({ newSelectedTagsAll, newSelectedTagsSome }) => {
     await store.updateItemsTags({
-      itemIds: selectedRows.map((row) => row.original.id),
+      itemIds: selectedItemIds,
       newSelectedTagsAll,
       newSelectedTagsSome,
     });
@@ -138,4 +140,4 @@ export const BulkActionControls = ({ table }) => {
       </Button>
     </div>
   );
-};
+});

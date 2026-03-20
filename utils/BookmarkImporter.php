@@ -29,7 +29,8 @@ class BookmarkImporter
 
 		// Create tags
 		$folder_path_to_tag_id_map = $this->saveFoldersAsTags($folders);
-		$tag_name_to_tag_id_map = $this->saveTags([...$tags, $this->imported_bookmark_default_tag_name]);
+		$tag_name_to_tag_id_map = $this->saveTags($tags);
+		$tag_name_to_tag_id_map[$this->imported_bookmark_default_tag_name] = createTagsFromSegments([$this->imported_bookmark_default_tag_name]);
 
 		// Save items to DB
 		$items = $this->saveItems($bookmarks, $folder_path_to_tag_id_map, $tag_name_to_tag_id_map);

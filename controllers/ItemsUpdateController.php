@@ -4,13 +4,13 @@ namespace Controllers;
 
 use Framework\ControllerInterface;
 use Framework\Exceptions\DataWriteException;
-use Framework\Exceptions\ValidationException;
 use Framework\Responses\ResponseInterface;
 use Framework\ServiceContainer;
 use Models\Repository;
 use Respect\Validation\Validator;
 use function Framework\success;
 use function Utils\clearItemImageDirectory;
+use function Utils\processInputTags;
 
 class ItemsUpdateController implements ControllerInterface
 {
@@ -28,30 +28,21 @@ class ItemsUpdateController implements ControllerInterface
 
 	public function __invoke(array $input): ResponseInterface
 	{
-		$repository = ServiceContainer::get(Repository::class);// Handle tags
-
-		// Handle tags
-		$new_tag_ids = array_map('intval', $input['tags']);
-		$tags = $repository->getTags();
-		$exising_tag_ids = array_keys($tags);
-		if (array_diff($new_tag_ids, $exising_tag_ids)) {
-			return throw new ValidationException('Non-existing tags provided');
-		}
+		// Handle tags (can throw an excepion)
+		$tag_ids = processInputTags($input['tags']);
 
 		// Save item in DB
 		$item_id = $_GET['item-id'];
-		$title = $input['title'];
-		$description = $input['description'];
-		$url = $input['url'];
-		$comments = $input['comments'];
 		$image = $input['image'];
 
-		$result = $repository->updateItem($title, $description, $url, $comments, $image, $item_id);
+		$repository = ServiceContainer::get(Repository::class);
+
+		$result = $repository->updateItem($input['title'], $input['description'], $input['url'], $input['comments'], $image, $item_id);
 		if (!$result) {
 			throw new DataWriteException('Item update failed');
 		}
 
-		$result = $repository->setItemTags($new_tag_ids, $item_id);
+		$result = $repository->setItemTags($tag_ids, $item_id);
 
 		if (!$result) {
 			throw new DataWriteException('Item tags update failed');

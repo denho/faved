@@ -55,7 +55,8 @@ export type TagType = {
   pinned: boolean;
   created_at: string;
   updated_at: string | null;
-  fullPath: any;
+  fullPath: string;
+  fullPathIDs: string;
 };
 export type TagsObjectType = Record<number, TagType>;
 

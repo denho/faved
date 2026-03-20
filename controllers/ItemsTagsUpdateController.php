@@ -40,6 +40,9 @@ class ItemsTagsUpdateController implements ControllerInterface
 		}
 
 		$repository->attachItemsTags($item_ids, $tags_ids_all);
+		
+		// Refresh item Updated date
+		$repository->refreshItemsUpdatedAt($item_ids);
 
 		return success(
 			'Tags updated successfully for ' . (count($item_ids) == 1 ? '1 item' : count($item_ids) . ' items')

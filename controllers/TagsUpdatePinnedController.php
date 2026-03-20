@@ -7,7 +7,7 @@ use Framework\Exceptions\ValidationException;
 use Framework\Responses\ResponseInterface;
 use Framework\ServiceContainer;
 use Models\Repository;
-use function Framework\data;
+use function Framework\success;
 
 class TagsUpdatePinnedController implements ControllerInterface
 {
@@ -28,18 +28,13 @@ class TagsUpdatePinnedController implements ControllerInterface
 		}
 
 		if ((bool)$tag['pinned'] === $input['pinned']) {
-			return data([
-				'success' => true,
-				'message' => 'Tag pinned state is already set to the requested value.',
-				'data' => [
+			return success(
+				'Tag pinned state is already set to the requested value.',
+				[
 					'tag_id' => $tag_id,
 					'pinned' => $input['pinned'],
 				]
-			]);
-		}
-
-		if ($input['pinned'] && !empty($tag['parent'])) {
-			throw new ValidationException('Pinned tags cannot have a parent tag.');
+			);
 		}
 
 		$repository->updateTagPinned(
@@ -47,13 +42,12 @@ class TagsUpdatePinnedController implements ControllerInterface
 			$input['pinned']
 		);
 
-		return data([
-			'success' => true,
-			'message' => 'Tag pinned state updated successfully.',
-			'data' => [
+		return success(
+			'Tag pinned state updated successfully.',
+			[
 				'tag_id' => $tag_id,
 				'pinned' => $input['pinned'],
 			]
-		]);
+		);
 	}
 }

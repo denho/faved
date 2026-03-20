@@ -190,6 +190,23 @@ class Repository
 		return $stmt->execute($sql_data);
 	}
 
+	public function refreshItemsUpdatedAt($item_ids)
+	{
+		if (empty($item_ids)) {
+			return false;
+		}
+		$sql_in = implode(',', array_fill(0, count($item_ids), '?'));
+		$stmt = $this->pdo->prepare(
+			"UPDATE items 
+			SET updated_at = ?
+    		WHERE id IN ($sql_in)"
+		);
+		return $stmt->execute([
+			date('Y-m-d H:i:s'),
+			...$item_ids,
+		]);
+	}
+
 	public function updateItem($title, $description, $url, $comments, $image, $item_id): bool
 	{
 		$stmt = $this->pdo->prepare(
@@ -232,33 +249,22 @@ class Repository
 		]);
 	}
 
-	public function updateTagParent($tag_id, $parent_tag_id)
-	{
-		$stmt = $this->pdo->prepare(
-			'UPDATE tags 
-			SET parent = :parent, 
-			updated_at = :updated_at
-			WHERE id = :id'
-		);
 
-		return $stmt->execute([
-			':parent' => $parent_tag_id,
-			':updated_at' => date('Y-m-d H:i:s'),
-			':id' => $tag_id
-		]);
-	}
-
-	public function updateTagTitle($tag_id, $title)
+	public function updateTag($tag_id, string $title, string $description, int $parent_id)
 	{
 		$stmt = $this->pdo->prepare(
 			'UPDATE tags 
 			SET title = :title, 
+			description = :description, 
+			parent = :parent, 
 			updated_at = :updated_at
 			WHERE id = :id'
 		);
 
 		return $stmt->execute([
 			':title' => $title,
+			':description' => $description,
+			':parent' => $parent_id,
 			':updated_at' => date('Y-m-d H:i:s'),
 			':id' => $tag_id
 		]);
@@ -296,19 +302,31 @@ class Repository
 		]);
 	}
 
-	public function deleteItemTag($tag_id)
+	public function deleteTagsItemAttachment(array $tag_ids)
 	{
-		$stmt = $this->pdo->prepare("DELETE FROM items_tags WHERE tag_id = :tag_id");
+		if (empty($tag_ids)) {
+			return false;
+		}
 
-		return $stmt->execute([':tag_id' => $tag_id]);
+		$sql_in = implode(',', array_fill(0, count($tag_ids), '?'));
+		$stmt = $this->pdo->prepare("DELETE FROM items_tags 
+		WHERE tag_id IN ($sql_in)");
+
+		return $stmt->execute($tag_ids);
 
 	}
 
-	public function deleteTag($tag_id)
+	public function deleteTags(array $tag_ids)
 	{
-		$stmt = $this->pdo->prepare("DELETE FROM tags WHERE id = :tag_id");
+		if (empty($tag_ids)) {
+			return false;
+		}
+		$sql_in = implode(',', array_fill(0, count($tag_ids), '?'));
 
-		return $stmt->execute([':tag_id' => $tag_id]);
+		$stmt = $this->pdo->prepare("DELETE FROM tags 
+		WHERE id IN ($sql_in)");
+
+		return $stmt->execute($tag_ids);
 
 	}
 
