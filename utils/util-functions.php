@@ -455,6 +455,17 @@ function clearDirectory($directory_path)
 	}
 }
 
+function removeItemImageDirectory($item_id)
+{
+	$directory_path = getItemImageLocalDir($item_id);
+
+	clearDirectory($directory_path);
+
+	if (is_dir($directory_path)) {
+		rmdir($directory_path);
+	}
+}
+
 function createDemoContent($repository)
 {
 	$raw_sql = file_get_contents(ROOT_DIR . '/sql-dumps/tags.sql');

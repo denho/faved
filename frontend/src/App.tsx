@@ -6,7 +6,7 @@ import { Login } from './pages/Login.tsx';
 import { Setup } from './pages/Setup.tsx';
 import { SetupAuth } from './pages/SetupAuth.tsx';
 import { SetupImport } from './pages/SetupImport.tsx';
-import { SetupBookmarklet } from './pages/SetupBookmarklet.tsx';
+import { SetupIntegrations } from './pages/SetupIntegrations.tsx';
 import { Toaster } from './components/ui/sonner';
 import { NotFound } from './layouts/NotFound.tsx';
 import { RouterProvider } from 'react-router';
@@ -82,7 +82,7 @@ const router = createBrowserRouter([
               { path: '/', element: <ItemList /> },
               { path: '/setup/auth', element: <SetupAuth /> },
               { path: '/setup/import', element: <SetupImport /> },
-              { path: '/setup/bookmarklet', element: <SetupBookmarklet /> },
+              { path: '/setup/integrations', element: <SetupIntegrations /> },
               { path: '/create-item', element: <CreateItem /> },
               { path: '/edit-item/:itemID', element: <EditItem /> },
             ],

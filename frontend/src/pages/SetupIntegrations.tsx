@@ -1,20 +1,20 @@
 import { Button } from '@/components/ui/button.tsx';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SettingsBookmarklet } from '@/components/Settings/SettingsBookmarklet.tsx';
 import { Onboarding } from '@/layouts/Onboarding.tsx';
+import { SettingsIntegrations } from '@/components/Settings/SettingsIntegrations.tsx';
 
-export const SetupBookmarklet = () => {
+export const SetupIntegrations = () => {
   const navigate = useNavigate();
   const [isInstalled, setIsInstalled] = useState(false);
 
+  const handleSuccess = useCallback(() => {
+    setIsInstalled(true);
+  }, []);
+
   return (
-    <Onboarding currentStep={2}>
-      <SettingsBookmarklet
-        onSuccess={() => {
-          setIsInstalled(true);
-        }}
-      />
+    <Onboarding currentStepIndex={1}>
+      <SettingsIntegrations onSuccess={handleSuccess} source="setup" />
 
       <>
         {isInstalled ? (

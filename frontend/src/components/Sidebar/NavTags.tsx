@@ -55,10 +55,16 @@ export const NavTags = observer(({ itemIDsByTagID }: { itemIDsByTagID: Record<st
 
   const showTagSearch = () => {
     setIsTagSearchVisible(true);
-    setTimeout(() => {
-      tagSearchRef.current.focus();
-    }, 50);
   };
+
+  React.useEffect(() => {
+    if (isTagSearchVisible) {
+      const timeout = setTimeout(() => {
+        tagSearchRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timeout);
+    }
+  }, [isTagSearchVisible]);
 
   const renderTag = useCallback(
     (parentID: number, threadItemIDs = [], threadMatchesSearch = false): [React.JSX.Element[], number[], boolean] => {

@@ -94,3 +94,13 @@ export const safeDecodeURI = (encodedURI: string): string => {
     return encodedURI || '';
   }
 };
+
+export const buildGoLinkURL = (path: string, params?: Record<string, string>) => {
+  const utmParams = new URLSearchParams({
+    utm_source: 'web_app',
+    utm_medium: 'in_app',
+    ...params,
+  });
+
+  return `https://faved.dev/go/${path}?${utmParams.toString()}`;
+};

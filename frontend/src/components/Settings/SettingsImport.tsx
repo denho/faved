@@ -71,7 +71,7 @@ export const SettingsImport = ({ onSuccess }: { onSuccess?: () => void }) => {
         <CardDescription>Import your bookmarks to Faved.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs value={activeTab} onValueChange={handleTabChange} orientation="vertical">
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
           <TabsList className="@container/tablist h-auto w-full items-stretch">
             <TabsTrigger value={ImportSource.BROWSER} className="flex flex-col flex-wrap @sm/tablist:flex-row">
               <div className="inline-flex items-center gap-0.5">

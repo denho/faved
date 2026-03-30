@@ -11,11 +11,6 @@ export const SettingsButton = observer(() => {
   const store = React.useContext(StoreContext);
   const { isMobile, toggleSidebar } = useSidebar();
 
-  React.useEffect(() => {
-    store.getAppInfo();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <Button
       variant="ghost"

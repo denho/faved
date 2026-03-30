@@ -9,6 +9,7 @@ use Framework\Responses\ResponseInterface;
 use Framework\ServiceContainer;
 use Models\Repository;
 use function Framework\success;
+use function Utils\removeItemImageDirectory;
 
 class ItemsDeleteController implements ControllerInterface
 {
@@ -33,6 +34,11 @@ class ItemsDeleteController implements ControllerInterface
 		if (false === $result) {
 			throw new DataWriteException('Failed to delete items');
 		}
+
+		// Delete item image directories
+		array_walk($item_ids, function ($item_id) {
+			removeItemImageDirectory($item_id);
+		});
 
 		$items_count = count($item_ids);
 

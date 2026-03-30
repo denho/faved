@@ -1,0 +1,66 @@
+{
+  "id": "/",
+  "name": "Faved Bookmarks",
+  "short_name": "Faved",
+  "description": "Faved: links and bookmarks management.",
+  "start_url": "./?launcher=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/favicons/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicons/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicons/android-chrome-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicons/mstile-150x150.png",
+      "sizes": "150x150",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add new link",
+      "short_name": "Add link",
+      "description": "Add a new link to your bookmarks",
+      "url": "/create-item",
+      "icons": [
+        {
+          "src": "/favicons/favicon-32x32.png",
+          "sizes": "32x32",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}

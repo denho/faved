@@ -8,7 +8,7 @@ export const SetupImport = () => {
   const navigate = useNavigate();
 
   return (
-    <Onboarding currentStep={3}>
+    <Onboarding currentStepIndex={2}>
       <SettingsImport onSuccess={() => navigate('/')} />
 
       <Button variant="link" className="" onClick={() => navigate('/')}>

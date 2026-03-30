@@ -3,17 +3,17 @@ import { Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface SetupWrapperProps extends React.ComponentProps<'div'> {
-  currentStep: number;
+  currentStepIndex: number;
   children: React.ReactNode;
 }
 
 const steps = [
-  { id: 1, title: 'Set Up Authentication', description: 'Configure authentication settings', url: '/setup/auth' },
-  { id: 2, title: 'Install Bookmarklet', description: 'Install browser bookmarklet', url: '/setup/bookmarklet' },
-  { id: 3, title: 'Import Bookmarks', description: 'Import your existing bookmarks', url: '/setup/import' },
+  { title: 'Set Up Authentication', url: '/setup/auth' },
+  { title: 'Install Apps & Extensions', url: '/setup/integrations' },
+  { title: 'Import Bookmarks', url: '/setup/import' },
 ];
 
-export const Onboarding = ({ currentStep, children }: SetupWrapperProps) => {
+export const Onboarding = ({ currentStepIndex, children }: SetupWrapperProps) => {
   const navigate = useNavigate();
 
   return (
@@ -22,30 +22,30 @@ export const Onboarding = ({ currentStep, children }: SetupWrapperProps) => {
         <nav className="mb-8 w-full">
           <div className="flex w-full items-center justify-between">
             {steps.map((step, index) => (
-              <React.Fragment key={step.id}>
+              <React.Fragment key={index}>
                 <div
                   className={`flex flex-col items-center transition-all duration-200 ${
-                    currentStep > step.id
+                    currentStepIndex > index
                       ? 'cursor-pointer'
-                      : currentStep === step.id
+                      : currentStepIndex === index
                         ? 'cursor-default'
                         : 'cursor-default opacity-50'
                   }`}
-                  onClick={() => currentStep > step.id && navigate(step.url)}
+                  onClick={() => currentStepIndex > index && navigate(step.url)}
                 >
                   <div
                     className={`mb-2 flex h-8 w-8 items-center justify-center rounded-full ${
-                      currentStep > step.id
+                      currentStepIndex > index
                         ? 'bg-primary text-secondary'
-                        : currentStep === step.id
+                        : currentStepIndex === index
                           ? 'bg-primary text-secondary'
                           : 'bg-gray-200 text-gray-500'
                     }`}
                   >
-                    {currentStep > step.id ? (
+                    {currentStepIndex > index ? (
                       <Check className="h-4 w-4" />
                     ) : (
-                      <span className="text-sm font-medium">{step.id}</span>
+                      <span className="text-sm font-medium">{index + 1}</span>
                     )}
                   </div>
                   <div className="text-center">
@@ -53,7 +53,7 @@ export const Onboarding = ({ currentStep, children }: SetupWrapperProps) => {
                   </div>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className={`mx-4 h-px flex-1 ${currentStep > step.id ? 'bg-primary' : 'bg-gray-200'}`} />
+                  <div className={`mx-4 h-px flex-1 ${currentStepIndex > index ? 'bg-primary' : 'bg-gray-200'}`} />
                 )}
               </React.Fragment>
             ))}

@@ -7,33 +7,37 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { StoreContext } from '@/store/storeContext.ts';
+import { buildGoLinkURL } from '@/lib/utils.ts';
 
-const utmParamsQuery = '?utm_source=web_app&utm_medium=in_app&utm_campaign=about_page_link';
-const buildLinkURL = (path: string) => `https://faved.dev/go/${path}${utmParamsQuery}`;
+const buildLink = (path: string) => {
+  return buildGoLinkURL(path, {
+    utm_campaign: 'about_page_link',
+  });
+};
 
 const links = [
     {
       icon: Server,
       label: 'Faved Cloud',
-      url: buildLinkURL('cloud'),
+      url: buildLink('cloud'),
       description: 'Secure managed hosting for Faved with automated backups and updates',
     },
     {
       icon: Newspaper,
       label: 'Blog',
-      url: buildLinkURL('blog'),
+      url: buildLink('blog'),
       description: 'Latest news, announcements and tutorials',
     },
     {
       icon: BookOpen,
       label: 'Documentation',
-      url: buildLinkURL('docs'),
+      url: buildLink('docs'),
       description: 'Learn how to use Faved',
     },
     {
       icon: FileText,
       label: 'Changelog',
-      url: buildLinkURL('changelog'),
+      url: buildLink('changelog'),
       description: 'Stay updated with the latest changes',
     },
   ],
@@ -42,8 +46,8 @@ const links = [
     { icon: IconBrandX, label: 'Follow on X (Twitter)', url: 'https://x.com/FavedTool' },
   ],
   supportLinks = [
-    { icon: Lightbulb, label: 'Open a feature request', url: buildLinkURL('open-feature-request') },
-    { icon: Bug, label: 'Report a bug', url: buildLinkURL('open-bug-report') },
+    { icon: Lightbulb, label: 'Open a feature request', url: buildLink('open-feature-request') },
+    { icon: Bug, label: 'Report a bug', url: buildLink('open-bug-report') },
     { icon: Mail, label: 'Contact us', url: 'mailto:contact@faved.dev' },
   ];
 
@@ -53,8 +57,8 @@ export const SettingsAbout = observer(() => {
   const latestVersion = store.appInfo?.latest_version ?? null;
   const updateAvailable = store.appInfo?.update_available ?? null;
 
-  const releaseNotesURL = buildLinkURL('changelog');
-  const updateDocsUrl = buildLinkURL('docs-update');
+  const releaseNotesURL = buildLink('changelog');
+  const updateDocsUrl = buildLink('docs-update');
 
   useEffect(() => {
     store.getAppInfo();

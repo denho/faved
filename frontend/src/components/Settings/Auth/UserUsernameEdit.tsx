@@ -1,12 +1,12 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button.tsx';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card.tsx';
+import { Input } from '@/components/ui/input.tsx';
 import z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
 import { Spinner } from '@/components/ui/spinner.tsx';
 import * as React from 'react';
 import { StoreContext } from '@/store/storeContext.ts';

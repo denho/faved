@@ -1,10 +1,10 @@
 import { observer } from 'mobx-react-lite';
 import * as React from 'react';
 import { StoreContext } from '@/store/storeContext.ts';
-import { UserCreate } from '@/components/Settings/UserCreate.tsx';
-import { UserUsernameEdit } from '@/components/Settings/UserUsernameEdit.tsx';
-import { UserPasswordEdit } from '@/components/Settings/UserPasswordEdit.tsx';
-import { UserDelete } from '@/components/Settings/UserDelete.tsx';
+import { UserCreate } from '@/components/Settings/Auth/UserCreate.tsx';
+import { UserUsernameEdit } from '@/components/Settings/Auth/UserUsernameEdit.tsx';
+import { UserPasswordEdit } from '@/components/Settings/Auth/UserPasswordEdit.tsx';
+import { UserDelete } from '@/components/Settings/Auth/UserDelete.tsx';
 
 export const SettingsAuth = observer(() => {
   const store = React.useContext(StoreContext);
