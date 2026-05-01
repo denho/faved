@@ -9,7 +9,7 @@ import { ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { useDefaultLayout, usePanelCallbackRef } from 'react-resizable-panels';
 import { useIsMobile } from '@/hooks/use-mobile.ts';
 import { SidebarPanelContext } from '@/contexts/SidebarPanelContext.ts';
-import { OnboardingBanner } from '@/components/OnboardingBanner/OnboardingBanner';
+import { BannerRotator } from '@/components/BannerRotator/BannerRotator';
 
 export const Dashboard = observer(({ children }: { children: React.ReactNode }) => {
   const store = useContext(StoreContext);
@@ -60,7 +60,7 @@ export const Dashboard = observer(({ children }: { children: React.ReactNode }) 
         {store.isItemModalOpen && <EditItemDialog />}
         {store.isSettingsModalOpen && <SettingsDialog />}
 
-        <OnboardingBanner />
+        <BannerRotator />
       </SidebarPanelContext.Provider>
     </>
   );
