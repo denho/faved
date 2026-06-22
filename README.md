@@ -5,13 +5,13 @@ A private open-source bookmark manager built to handle large collections and adv
 
 <div align="center">
   
-  🧪 **[Try Live Demo](https://demo.faved.dev/?utm_source=github&utm_medium=readme)** | 🌐 **[Visit Website](https://faved.dev/?utm_source=github&utm_medium=readme)** | 📖 **[Read the Docs](https://faved.dev/docs/getting-started/introduction)**
+  🧪 **[Try Live Demo](https://demo.faved.to/?utm_source=github&utm_medium=readme)** | 🌐 **[Visit Website](https://faved.to/?utm_source=github&utm_medium=readme)** | 📖 **[Read the Docs](https://faved.to/docs/getting-started/introduction)**
 </div>
 
 
 <div align="center">
   
-  📚 **[Blog](https://faved.dev/blog?utm_source=github&utm_medium=readme)** | 𝕏 **[Twitter](https://x.com/FavedTool)** | 💬 **[Discord](https://discord.gg/VZrtc8vWp7)**
+  📚 **[Blog](https://faved.to/blog?utm_source=github&utm_medium=readme)** | 𝕏 **[Twitter](https://x.com/FavedTool)** | 💬 **[Discord](https://discord.gg/VZrtc8vWp7)**
 </div>
 
 
@@ -64,15 +64,15 @@ https://github.com/user-attachments/assets/0ecbf26a-9ed8-49d9-a5ce-33d471c06fdf
 
 ## Get started
 
-- [Self-host for free](https://faved.dev/docs/getting-started/installation?utm_source=github&utm_medium=readme) with no external dependencies. All data is stored locally.
+- [Self-host for free](https://faved.to/docs/getting-started/installation?utm_source=github&utm_medium=readme) with no external dependencies. All data is stored locally.
 - [Start in the Cloud](https://faved.cloud/signup?utm_source=github&utm_medium=readme) with zero setup, automatic backups and support. Your data is secured with encryption.
 
 ## Documentation
 
-- [Introduction](https://faved.dev/docs/getting-started/introduction?utm_source=github&utm_medium=readme)
-- [Installation](https://faved.dev/docs/getting-started/installation?utm_source=github&utm_medium=readme)
-- [Updating](https://faved.dev/docs/getting-started/updating?utm_source=github&utm_medium=readme)
-- [Using browser bookmarklet](https://faved.dev/docs/getting-started/using-browser-bookmarklet?utm_source=github&utm_medium=readme)
+- [Introduction](https://faved.to/docs/getting-started/introduction?utm_source=github&utm_medium=readme)
+- [Installation](https://faved.to/docs/getting-started/installation?utm_source=github&utm_medium=readme)
+- [Updating](https://faved.to/docs/getting-started/updating?utm_source=github&utm_medium=readme)
+- [Using browser bookmarklet](https://faved.to/docs/getting-started/using-browser-bookmarklet?utm_source=github&utm_medium=readme)
 - [Changelog](https://github.com/denho/faved/releases)
 
 

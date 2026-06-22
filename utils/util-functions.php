@@ -176,15 +176,15 @@ function createWelcomeContent()
 	$item_creator = ServiceContainer::get(ItemCreator::class);
 	$item_creator->createItems([
 		new Item(
-			'https://faved.dev/',
+			'https://faved.to/',
 			'Faved - Organize Your Bookmarks',
 			'Free, open-source bookmark manager: superfast, lightweight, and secure. Organize with customisable nested tags, save web pages from any browser via a bookmarklet.',
-			'https://faved.dev/static/images/og-image.png',
+			'https://faved.to/static/images/og-image.png',
 			'Faved main site',
 			[$faved_tag_id],
 		),
 		new Item(
-			'https://demo.faved.dev/',
+			'https://demo.faved.to/',
 			'Faved Demo',
 			'Try out Faved online before installing it on your machine. Demo sites are provided for testing and are deleted after one month.',
 			'',
@@ -192,7 +192,7 @@ function createWelcomeContent()
 			[$faved_tag_id]
 		),
 		new Item(
-			'https://faved.dev/blog',
+			'https://faved.to/blog',
 			'Blog | Faved - Organize Your Bookmarks',
 			'Faved updates, tutorials and product announcements',
 			'',
@@ -216,7 +216,7 @@ function createWelcomeContent()
 			[$faved_tag_id]
 		),
 		new Item(
-			'https://faved.dev/blog/meet-faved-open-source-privacy-first-bookmark-manager',
+			'https://faved.to/blog/meet-faved-open-source-privacy-first-bookmark-manager',
 			'Meet Faved: An Open-Source Privacy-First Bookmark Manager | Faved - Organize Your Bookmarks',
 			'In a world where every digital service wants to control your data, I believe it’s important to have an option to keep your data secure from trackers and advertising networks. That’s why I built Faved: an open-source, self-hosted bookmark manager that gives you complete control over your saved web content and links.',
 			'',
@@ -224,10 +224,10 @@ function createWelcomeContent()
 			[$welcome_tag_id]
 		),
 		new Item (
-			'https://faved.dev/blog/migrate-pocket-to-faved',
+			'https://faved.to/blog/migrate-pocket-to-faved',
 			'How to Migrate Your Data from Pocket to Faved | Faved - Organize Your Bookmarks',
 			'Pocket is shutting down on July 8, 2025. As a privacy-first alternative, Faved lets you organize and manage your bookmarks while keeping full ownership of your data. Learn how to migrate your data from Pocket to Faved in a few simple steps.',
-			'https://faved.dev/static/images/posts/migrate-pocket-to-faved/migrate-from-pocket-to-faved-ogimage.png',
+			'https://faved.to/static/images/posts/migrate-pocket-to-faved/migrate-from-pocket-to-faved-ogimage.png',
 			'',
 			[$welcome_tag_id]
 		)
