@@ -72,7 +72,14 @@ https://github.com/user-attachments/assets/0ecbf26a-9ed8-49d9-a5ce-33d471c06fdf
 - [Introduction](https://faved.to/docs/getting-started/introduction?utm_source=github&utm_medium=readme)
 - [Installation](https://faved.to/docs/getting-started/installation?utm_source=github&utm_medium=readme)
 - [Updating](https://faved.to/docs/getting-started/updating?utm_source=github&utm_medium=readme)
+- [Installing as a PWA app	](https://faved.to/docs/getting-started/installing-as-a-pwa-app)
 - [Using browser bookmarklet](https://faved.to/docs/getting-started/using-browser-bookmarklet?utm_source=github&utm_medium=readme)
+- [Saving with Apple shortcut](https://faved.to/docs/getting-started/saving-with-apple-shortcut?utm_source=github&utm_medium=readme)
+- [Adding and editing bookmarks](https://faved.to/docs/guides/adding-and-editing-bookmarks?utm_source=github&utm_medium=readme)
+- [Importing bookmarks](https://faved.to/docs/guides/importing-bookmarks?utm_source=github&utm_medium=readme)
+- [Organizing with tags](https://faved.to/docs/guides/organizing-with-tags?utm_source=github&utm_medium=readme)
+- [Finding and viewing bookmarks](https://faved.to/docs/guides/finding-and-viewing-bookmarks?utm_source=github&utm_medium=readme)
+- [Bulk actions](https://faved.to/docs/guides/bulk-actions?utm_source=github&utm_medium=readme)
 - [Changelog](https://github.com/denho/faved/releases)
 
 

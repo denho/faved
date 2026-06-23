@@ -262,7 +262,7 @@ function createWelcomeContent()
 			'',
 			[$docs_getting_started_tag_id]),
 		new Item('https://faved.to/docs/getting-started/installing-as-a-pwa-app',
-			'Installing as a PWA app	',
+			'Installing as a PWA app',
 			'Install Faved on any device for a faster, native app-like experience.',
 			'https://faved.to/static/og/docs__getting-started__installing-as-a-pwa-app.png',
 			'',
