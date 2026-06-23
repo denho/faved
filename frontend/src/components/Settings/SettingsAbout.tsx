@@ -1,6 +1,6 @@
 import { Logo } from '@/components/Logo.tsx';
 import { BookOpen, Bug, ExternalLink, FileText, Lightbulb, Mail, Newspaper, Server } from 'lucide-react';
-import { IconBrandGithub, IconBrandX } from '@tabler/icons-react';
+import { IconBrandDiscord, IconBrandGithub, IconBrandX } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import * as React from 'react';
@@ -42,8 +42,9 @@ const links = [
     },
   ],
   socialLinks = [
-    { icon: IconBrandGithub, label: 'Star on GitHub', url: 'https://github.com/denho/faved' },
-    { icon: IconBrandX, label: 'Follow on X (Twitter)', url: 'https://x.com/FavedTool' },
+    { icon: IconBrandGithub, label: 'Star on GitHub', url: buildLink('social-github') },
+    { icon: IconBrandX, label: 'Follow on X (Twitter)', url: buildLink('social-x') },
+    { icon: IconBrandDiscord, label: 'Join the Community', url: buildLink('social-discord') },
   ],
   supportLinks = [
     { icon: Lightbulb, label: 'Open a feature request', url: buildLink('open-feature-request') },
@@ -156,7 +157,7 @@ export const SettingsAbout = observer(() => {
           </Card>
           <Card className="gap-4">
             <CardHeader>
-              <CardTitle className="text-base sm:text-lg">Stay Connected on Social Media</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Stay Connected</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-2">
               {socialLinks.map((link) => {
