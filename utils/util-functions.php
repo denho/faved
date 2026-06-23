@@ -33,7 +33,7 @@ function getTagColors()
 		'red',
 		'yellow',
 		'aqua',
-		'white ',
+		'white',
 		'black',
 	];
 }
@@ -170,34 +170,38 @@ function fetchPageHTML(string $url): string
 function createWelcomeContent()
 {
 	$tag_creator = ServiceContainer::get(TagCreator::class);
-	$faved_tag_id = $tag_creator->createTag('Faved', 'This is a tag for Faved links. Feel free to delete it after getting familiar with those resources.', 0, 'gray', true);
-	$welcome_tag_id = $tag_creator->createTag('Welcome', "Familiarize yourself with the functionality of Faved by exploring the articles under this tag.\n\nℹ️ This is a nested tag. Nested tags are perfect for grouping several projects, e.g. for Work, School, or Personal use. \n\n💡 To create a nested tag, simply separate words with a forward slash.", $faved_tag_id, 'green', false);
+	$faved_tag_id = $tag_creator->createTag('Faved', 'This is a tag for Faved links. Feel free to delete it after getting familiar with those resources.', 0, 'aqua', true);
+	$docs_tag_id = $tag_creator->createTag('Docs', "Familiarize yourself with the functionality of Faved by exploring the articles under this tag.\n\nℹ️ This is a nested tag. Nested tags are perfect for grouping several projects, e.g. for Work, School, or Personal use. \n\n💡 To create a nested tag, simply separate words with a forward slash.", $faved_tag_id, 'gray', false);
+	$docs_getting_started_tag_id = $tag_creator->createTag('Getting started', '', $docs_tag_id, 'yellow', false);
+	$docs_guides_tag_id = $tag_creator->createTag('Guides', '', $docs_tag_id, 'red', false);
+	$quick_links_tag_id = $tag_creator->createTag('Quick links', '', $faved_tag_id, 'green', false);
+
 
 	$item_creator = ServiceContainer::get(ItemCreator::class);
 	$item_creator->createItems([
 		new Item(
-			'https://faved.dev/',
+			'https://faved.to/',
 			'Faved - Organize Your Bookmarks',
 			'Free, open-source bookmark manager: superfast, lightweight, and secure. Organize with customisable nested tags, save web pages from any browser via a bookmarklet.',
-			'https://faved.dev/static/images/og-image.png',
+			'https://faved.to/static/images/og-image.png',
 			'Faved main site',
-			[$faved_tag_id],
+			[$quick_links_tag_id],
 		),
 		new Item(
-			'https://demo.faved.dev/',
+			'https://demo.faved.to/',
 			'Faved Demo',
 			'Try out Faved online before installing it on your machine. Demo sites are provided for testing and are deleted after one month.',
 			'',
 			'',
-			[$faved_tag_id]
+			[$quick_links_tag_id]
 		),
 		new Item(
-			'https://faved.dev/blog',
+			'https://faved.to/blog',
 			'Blog | Faved - Organize Your Bookmarks',
 			'Faved updates, tutorials and product announcements',
 			'',
 			'',
-			[$faved_tag_id]
+			[$quick_links_tag_id]
 		),
 		new Item(
 			'https://github.com/denho/faved',
@@ -205,7 +209,7 @@ function createWelcomeContent()
 			'Free open-source bookmark manager with customisable nested tags. Super fast and lightweight. All data is stored locally. - denho/faved',
 			'https://repository-images.githubusercontent.com/995300772/895299f8-4360-4b17-a87e-4be5fb8f7e94',
 			'',
-			[$faved_tag_id]
+			[$quick_links_tag_id]
 		),
 		new Item(
 			'https://x.com/FavedTool',
@@ -213,24 +217,56 @@ function createWelcomeContent()
 			'Lightning fast free open source bookmark manager with accent on privacy and data ownership.',
 			'',
 			'',
-			[$faved_tag_id]
+			[$quick_links_tag_id]
 		),
-		new Item(
-			'https://faved.dev/blog/meet-faved-open-source-privacy-first-bookmark-manager',
-			'Meet Faved: An Open-Source Privacy-First Bookmark Manager | Faved - Organize Your Bookmarks',
-			'In a world where every digital service wants to control your data, I believe it’s important to have an option to keep your data secure from trackers and advertising networks. That’s why I built Faved: an open-source, self-hosted bookmark manager that gives you complete control over your saved web content and links.',
+		new Item('https://faved.to/docs/guides/bulk-actions',
+			'Bulk actions',
+			'Perform operations on multiple bookmarks simultaneously.',
+			'https://faved.to/static/og/docs__guides__bulk-actions.png',
 			'',
+			[$docs_guides_tag_id]),
+		new Item('https://faved.to/docs/guides/finding-and-viewing-bookmarks',
+			'Finding and viewing bookmarks',
+			'Search, filter, and display your saved bookmarks the way that works best for you.',
+			'https://faved.to/static/og/docs__guides__finding-and-viewing-bookmarks.png',
 			'',
-			[$welcome_tag_id]
-		),
-		new Item (
-			'https://faved.dev/blog/migrate-pocket-to-faved',
-			'How to Migrate Your Data from Pocket to Faved | Faved - Organize Your Bookmarks',
-			'Pocket is shutting down on July 8, 2025. As a privacy-first alternative, Faved lets you organize and manage your bookmarks while keeping full ownership of your data. Learn how to migrate your data from Pocket to Faved in a few simple steps.',
-			'https://faved.dev/static/images/posts/migrate-pocket-to-faved/migrate-from-pocket-to-faved-ogimage.png',
+			[$docs_guides_tag_id]),
+		new Item('https://faved.to/docs/guides/organizing-with-tags',
+			'Organizing with tags',
+			'How Faved\'s tag system works and how to make the most of it.',
+			'https://faved.to/static/og/docs__guides__organizing-with-tags.png',
 			'',
-			[$welcome_tag_id]
-		)
+			[$docs_guides_tag_id]),
+		new Item('https://faved.to/docs/guides/importing-bookmarks',
+			'Importing bookmarks',
+			'Move your existing bookmarks into Faved from other tools.',
+			'https://faved.to/static/og/docs__guides__importing-bookmarks.png',
+			'',
+			[$docs_guides_tag_id]),
+		new Item('https://faved.to/docs/guides/adding-and-editing-bookmarks',
+			'Adding and editing bookmarks',
+			'How to save links and keep their details accurate over time.',
+			'https://faved.to/static/og/docs__guides__adding-and-editing-bookmarks.png',
+			'',
+			[$docs_guides_tag_id]),
+		new Item('https://faved.to/docs/getting-started/saving-with-apple-shortcut',
+			'Saving with Apple shortcut',
+			'Save links to Faved from the Share Sheet on iOS, iPadOS, and macOS — and the Services menu on Mac.',
+			'https://faved.to/static/og/docs__getting-started__saving-with-apple-shortcut.png',
+			'',
+			[$docs_getting_started_tag_id]),
+		new Item('https://faved.to/docs/getting-started/using-browser-bookmarklet',
+			'Using browser bookmarklet',
+			'Save any web page to your collection in one click, from any browser.',
+			'https://faved.to/static/og/docs__getting-started__using-browser-bookmarklet.png',
+			'',
+			[$docs_getting_started_tag_id]),
+		new Item('https://faved.to/docs/getting-started/installing-as-a-pwa-app',
+			'Installing as a PWA app',
+			'Install Faved on any device for a faster, native app-like experience.',
+			'https://faved.to/static/og/docs__getting-started__installing-as-a-pwa-app.png',
+			'',
+			[$docs_getting_started_tag_id]),
 	]);
 }
 
@@ -404,6 +440,7 @@ function getRemoteImageContents($url)
 		'image/svg+xml',
 		'image/bmp',
 		'image/tiff',
+		'image/avif',
 	];
 	if (!in_array($content_type, $allowed_types)) {
 		throw new ValidationException('Unsupported image type: ' . $content_type);
