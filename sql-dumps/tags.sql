@@ -1,6 +1,6 @@
 INSERT INTO tags(id, title, description, color, parent, pinned, created_at, updated_at) VALUES(73, 'Read later', '', 'yellow', 0, 0, '2025-10-02 06:744:05', '2025-10-02 07:08:13');
 INSERT INTO tags(id, title, description, color, parent, pinned, created_at, updated_at) VALUES(74, 'Marketing', '', 'red', 0, 0, '2025-10-02 07:708:32', '2025-10-02 07:08:38');
-INSERT INTO tags(id, title, description, color, parent, pinned, created_at, updated_at) VALUES(75, 'Software', '', 'aqua', 0, 1, '2025-10-02 07:712:36', '2025-10-02 13:43:55');
+INSERT INTO tags(id, title, description, color, parent, pinned, created_at, updated_at) VALUES(75, 'Software', '', 'green', 0, 0, '2025-10-02 07:712:36', '2025-10-02 13:43:55');
 INSERT INTO tags(id, title, description, color, parent, pinned, created_at, updated_at) VALUES(76, 'Category', '', 'gray', 75, 0, '2025-10-02 07:12:36', NULL);
 INSERT INTO tags(id, title, description, color, parent, pinned, created_at, updated_at) VALUES(77, 'Email client', '', 'aqua', 76, 0, '2025-10-02 07:712:36', '2025-10-02 14:02:49');
 INSERT INTO tags(id, title, description, color, parent, pinned, created_at, updated_at) VALUES(78, 'AI-powered', '', 'black', 75, 0, '2025-10-02 07:717:39', '2025-10-02 13:42:05');
