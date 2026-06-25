@@ -1,3 +1,4 @@
+
   
 #  <img height="27px" src="https://github.com/user-attachments/assets/f96ecc14-bc29-4769-828e-c94cb3c87b9e" /> Faved
 
@@ -14,9 +15,7 @@ A private open-source bookmark manager built to handle large collections and adv
   📚 **[Blog](https://faved.to/blog?utm_source=github&utm_medium=readme)** | 𝕏 **[Twitter](https://x.com/FavedTool)** | 💬 **[Discord](https://discord.gg/VZrtc8vWp7)**
 </div>
 
-
-<img width="2400" height="1400" alt="screenshot-list-desktop-mobile-safari" src="https://github.com/user-attachments/assets/9b5fb4d4-6b95-4fae-a9bd-fb1600a3d00c" />
-
+<img width="1660" height="1004" alt="screenshot-list-desktop-mobile-safari" src="https://github.com/user-attachments/assets/24b08a59-61dd-48a4-a954-d58375fb3c57" />
 
 ## Features
 
