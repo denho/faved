@@ -45,9 +45,9 @@ A private open-source bookmark manager built to handle large collections and adv
 
 ### 🔗 Integrations
 
+* [Chrome browser extension](https://chromewebstore.google.com/detail/faved-%E2%80%94-save-bookmarks-li/lejmncpaclknlpnpfinmpnfppaokidmi)
 * **Lightweight browser bookmarklet** — save securely from any browser without extensions
 * **Apple Shortcuts** — integrate into native share sheet on iOS/MacOS/iPadOS
-* Browser extensions *(planned)*
 
 ### 📥 Import & Migration
 
