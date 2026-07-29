@@ -22,7 +22,7 @@ const messages = [
     text: 'Start organizing your links instantly',
     action: (
       <a
-        href="https://faved.cloud/signup?ref=demo_banner"
+        href="https://faved.cloud/signup?cta=demo-banner"
         rel="noopener noreferrer"
         className="bg-primary-foreground text-primary rounded px-3 py-1 text-sm font-medium text-nowrap transition-opacity hover:opacity-90"
       >
