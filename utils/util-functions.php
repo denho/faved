@@ -7,13 +7,14 @@ use Exception;
 use Framework\Exceptions\ValidationException;
 use Framework\ServiceContainer;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Response;
 use Models\Item;
 use Models\ItemCreator;
 use Models\Repository;
 use Models\TagCreator;
-use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Message\ResponseInterface;
 
 function groupTagsByParent($tags)
 {
@@ -134,36 +135,33 @@ function resolveUrl(string $relative_url, string $base_url): string
 
 function fetchPageHTML(string $url): string
 {
-	// Initialize cURL
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-	curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
-	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-	curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	// SSRF checks, IP pinning and TLS are enforced by the client's guard middleware.
+	$client = ServiceContainer::get(Client::class);
 
-	$html = curl_exec($ch);
-
-	if (curl_errno($ch)) {
-		$error = curl_error($ch);
-		curl_close($ch);
-		throw new Exception("Failed to fetch URL: " . $error, 400);
+	try {
+		$response = $client->get($url, [
+			'timeout' => 30,
+			'connect_timeout' => 10,
+			// Non-2xx is handled below, not raised as a Guzzle exception.
+			'http_errors' => false,
+		]);
+	} catch (GuzzleException $e) {
+		// Transport failures only; SSRF rejections are ValidationExceptions
+		// and deliberately pass through uncaught.
+		throw new Exception('Failed to fetch URL: ' . $e->getMessage(), 400);
 	}
 
-	$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	curl_close($ch);
-
-	if ($http_code < 200 || $http_code >= 300) {
-		throw new Exception("Page returned HTTP error: {$http_code}", 400);
+	$status = $response->getStatusCode();
+	if ($status < 200 || $status >= 300) {
+		throw new Exception("Page returned HTTP error: {$status}", 400);
 	}
 
-	if ($html === false) {
+	$body = (string)$response->getBody();
+	if ($body === '') {
 		throw new Exception("Failed to retrieve page content", 400);
 	}
 
-	return $html;
+	return $body;
 }
 
 
@@ -280,12 +278,30 @@ function buildPublicUserObject(array $user): array
 	];
 }
 
-function getItemImageLocalPath($image_url, $item_id): string
+/**
+ * Where an item image is stored. The extension comes from the verified media
+ * type, never from the URL, so a remote host cannot choose it.
+ */
+function buildItemImageLocalPath($image_url, $item_id, string $extension): string
 {
-	$extension = pathinfo(parse_url($image_url, PHP_URL_PATH), PATHINFO_EXTENSION);
-	$extension = strtolower($extension);
-	$image_name = md5($image_url) . ($extension ? '.' . $extension : '');
-	return sprintf('%s/%s', getItemImageLocalDir($item_id), $image_name);
+	return sprintf('%s/%s.%s', getItemImageLocalDir($item_id), md5($image_url), $extension);
+}
+
+/**
+ * Locate a cached item image whatever extension it was stored under, or null.
+ */
+function getItemImageLocalFile($image_url, $item_id): ?string
+{
+	$pattern = sprintf('%s/%s.*', getItemImageLocalDir($item_id), md5($image_url));
+	foreach (glob($pattern) ?: [] as $match) {
+		if (is_file($match)) {
+			$contents = file_get_contents($match);
+			if ($contents !== false) {
+				return $contents;
+			}
+		}
+	}
+	return null;
 }
 
 function getItemImageLocalDir($item_id): string
@@ -357,24 +373,28 @@ function fetchMultiplePageHTML(array $urls): array
 {
 	$unique_urls = array_values(array_unique($urls));
 
-	$client = new Client([
-		'timeout' => 10,
-		'connect_timeout' => 5,
-	]);
-
-	// Create requests generator
-	$requests = function () use ($unique_urls, $client) {
-		foreach ($unique_urls as $url) {
-			yield function () use ($client, $url) {
-				return $client->getAsync($url);
-			};
-		}
-	};
+	// SSRF checks, IP pinning and TLS are enforced by the client's guard middleware.
+	$client = ServiceContainer::get(Client::class);
 
 	$pages = [];
 	$failed_reasons = [];
 
-	// Execute parallel requests
+	$request_options = [
+		'timeout' => 10,
+		'connect_timeout' => 5,
+		// Non-2xx is handled in the fulfilled callback below.
+		'http_errors' => false,
+	];
+
+	// Every URL enters the pool; the guard rejects internal ones as they dispatch.
+	$requests = function () use ($unique_urls, $client, $request_options) {
+		foreach ($unique_urls as $url) {
+			yield function () use ($client, $url, $request_options) {
+				return $client->getAsync($url, $request_options);
+			};
+		}
+	};
+
 	$pool = new Pool($client, $requests(), [
 		'concurrency' => 10,
 		'fulfilled' => function (Response $response, $index) use (&$pages, &$failed_reasons, $unique_urls) {
@@ -394,71 +414,94 @@ function fetchMultiplePageHTML(array $urls): array
 
 			$pages[$url] = $body;
 		},
-		'rejected' => function (ClientExceptionInterface $reason, $index) use (&$failed_reasons, $unique_urls) {
+		// Reason may be a Guzzle exception or the guard's ValidationException.
+		'rejected' => function ($reason, $index) use (&$failed_reasons, $unique_urls) {
 			$url = $unique_urls[$index];
-			$failed_reasons[$url] = $reason->getMessage();
+			$failed_reasons[$url] = $reason instanceof \Throwable ? $reason->getMessage() : 'Request failed';
 		},
 	]);
 
-	// Wait for all requests to complete
 	$promise = $pool->promise();
 	$promise->wait();
 
 	return [$pages, $failed_reasons];
 }
+/**
+ * Media types we accept, mapped to the extension we store them as. Keyed by what
+ * finfo reports for the actual bytes, so the alternative labels servers send
+ * (image/jpg, image/pjpeg, image/x-png) need no entry - those bytes normalise to
+ * these types. SVG is absent deliberately: it can carry script and would be a
+ * stored XSS vector when served back inline.
+ */
+const IMAGE_TYPES = [
+	'image/jpeg' => 'jpg',
+	'image/png' => 'png',
+	'image/gif' => 'gif',
+	'image/webp' => 'webp',
+	'image/bmp' => 'bmp',
+	'image/tiff' => 'tiff',
+	'image/avif' => 'avif',
+];
 
-function getLocalFileContents($path)
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+
+/**
+ * Fetch a remote image and verify it is one of IMAGE_TYPES.
+ *
+ * @return array{contents: string, mime: string, extension: string}
+ * @throws ValidationException when the response is not an acceptable image
+ */
+function fetchRemoteImage(string $url): array
 {
-	if (!file_exists($path)) {
-		return null;
-	}
-	$contents = file_get_contents($path);
-	if ($contents === false) {
-		throw new \RuntimeException('Failed to read file');
-	}
-	return $contents;
-}
+	// SSRF checks, IP pinning and TLS are enforced by the client's guard middleware.
+	$client = ServiceContainer::get(Client::class);
 
-function getRemoteImageContents($url)
-{
-	$client = new Client();
-	$response = $client->get($url, [
-		'stream' => true,
-		'headers' => [
-			'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-		],
-		'timeout' => 5,
-	]);
-
-	$content_type = $response->getHeaderLine('content-type');
-	$allowed_types = [
-		'image/jpeg',
-		'image/jpg',
-		'image/png',
-		'image/gif',
-		'image/webp',
-		'image/svg+xml',
-		'image/bmp',
-		'image/tiff',
-		'image/avif',
-	];
-
-	// Normalise "image/png; charset=..." to just the media type.
-	$content_type = strtolower(trim(explode(';', $response->getHeaderLine('content-type'))[0]));
-	if (!in_array($content_type, $allowed_types, true)) {
-		throw new ValidationException('Unsupported image type');
+	// Not streamed: Guzzle would route this to StreamHandler, which ignores
+	// $options['curl'] and would silently drop the guard's CURLOPT_RESOLVE pin.
+	try {
+		$response = $client->get($url, [
+			'timeout' => 5,
+			'curl' => [CURLOPT_MAXFILESIZE => MAX_IMAGE_BYTES],
+			// Reject before the body is downloaded where the headers already tell
+			// us enough. Both checks are advisory - the bytes decide below.
+			'on_headers' => function ($response): void {
+				// Handlers decide what they pass here; Guzzle's MockHandler hands
+				// over the queued throwable. Nothing to inspect then - the
+				// transport error surfaces on its own.
+				if (!$response instanceof ResponseInterface) {
+					return;
+				}
+				if ((int)$response->getHeaderLine('Content-Length') > MAX_IMAGE_BYTES) {
+					throw new ValidationException('Image is too large');
+				}
+				$declared = strtolower(trim(explode(';', $response->getHeaderLine('Content-Type'))[0]));
+				if ($declared !== '' && !str_starts_with($declared, 'image/')) {
+					throw new ValidationException('Not an image: ' . $declared);
+				}
+			},
+		]);
+	} catch (GuzzleException $e) {
+		// Guzzle wraps whatever on_headers throws, which would hide our reason
+		// behind a generic transport error. Surface the original.
+		if ($e->getPrevious() instanceof ValidationException) {
+			throw $e->getPrevious();
+		}
+		throw $e;
 	}
 
-	$contents = $response->getBody()->getContents();
-
-	// Do not trust the Content-Type header: verify the actual bytes are
-	// an image via magic-byte sniffing.
-	$sniffed = (new \finfo(FILEINFO_MIME_TYPE))->buffer($contents);
-	if (!is_string($sniffed) || !str_starts_with($sniffed, 'image/')) {
-		throw new ValidationException('The requested content is not a valid image');
+	$contents = (string)$response->getBody();
+	if (strlen($contents) > MAX_IMAGE_BYTES) {
+		throw new ValidationException('Image is too large');
 	}
 
-	return $contents;
+	// The bytes decide. Content-Type is chosen by the remote host, so it only
+	// ever short-circuits above - it never grants acceptance.
+	$mime = (new \finfo(FILEINFO_MIME_TYPE))->buffer($contents);
+	if (!is_string($mime) || !isset(IMAGE_TYPES[$mime])) {
+		throw new ValidationException('Unsupported image type: ' . ($mime ?: 'unknown'));
+	}
+
+	return ['contents' => $contents, 'mime' => $mime, 'extension' => IMAGE_TYPES[$mime]];
 }
 
 function saveImageToLocalPath($local_path, $image_contents): void

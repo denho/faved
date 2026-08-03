@@ -9,6 +9,7 @@
     "files": [
       "framework/helper-functions.php",
       "utils/util-functions.php",
+      "utils/safe-http-functions.php",
       "Config.php"
     ]
   },
