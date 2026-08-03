@@ -442,12 +442,21 @@ function getRemoteImageContents($url)
 		'image/tiff',
 		'image/avif',
 	];
-	if (!in_array($content_type, $allowed_types)) {
-		throw new ValidationException('Unsupported image type: ' . $content_type);
+
+	// Normalise "image/png; charset=..." to just the media type.
+	$content_type = strtolower(trim(explode(';', $response->getHeaderLine('content-type'))[0]));
+	if (!in_array($content_type, $allowed_types, true)) {
+		throw new ValidationException('Unsupported image type');
 	}
 
-	$body = $response->getBody();
-	$contents = $body->getContents();
+	$contents = $response->getBody()->getContents();
+
+	// Do not trust the Content-Type header: verify the actual bytes are
+	// an image via magic-byte sniffing.
+	$sniffed = (new \finfo(FILEINFO_MIME_TYPE))->buffer($contents);
+	if (!is_string($sniffed) || !str_starts_with($sniffed, 'image/')) {
+		throw new ValidationException('The requested content is not a valid image');
+	}
 
 	return $contents;
 }
