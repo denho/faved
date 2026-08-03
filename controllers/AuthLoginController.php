@@ -47,7 +47,7 @@ class AuthLoginController implements ControllerInterface
 		// Rehash password if needed
 		if (password_needs_rehash($user['password_hash'], Config::getPasswordAlgo())) {
 			$new_hash = password_hash($password, Config::getPasswordAlgo());
-			$repository->updateUserPassword($user['id'], $new_hash);
+			$repository->updatePasswordHash($user['id'], $new_hash);
 		}
 
 		// Update user session
