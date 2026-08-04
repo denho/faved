@@ -14,7 +14,6 @@ use Models\Item;
 use Models\ItemCreator;
 use Models\Repository;
 use Models\TagCreator;
-use Psr\Http\Message\ResponseInterface;
 
 function groupTagsByParent($tags)
 {
@@ -460,44 +459,20 @@ function fetchRemoteImage(string $url): array
 
 	// Not streamed: Guzzle would route this to StreamHandler, which ignores
 	// $options['curl'] and would silently drop the guard's CURLOPT_RESOLVE pin.
-	try {
-		$response = $client->get($url, [
-			'timeout' => 5,
-			'curl' => [CURLOPT_MAXFILESIZE => MAX_IMAGE_BYTES],
-			// Reject before the body is downloaded where the headers already tell
-			// us enough. Both checks are advisory - the bytes decide below.
-			'on_headers' => function ($response): void {
-				// Handlers decide what they pass here; Guzzle's MockHandler hands
-				// over the queued throwable. Nothing to inspect then - the
-				// transport error surfaces on its own.
-				if (!$response instanceof ResponseInterface) {
-					return;
-				}
-				if ((int)$response->getHeaderLine('Content-Length') > MAX_IMAGE_BYTES) {
-					throw new ValidationException('Image is too large');
-				}
-				$declared = strtolower(trim(explode(';', $response->getHeaderLine('Content-Type'))[0]));
-				if ($declared !== '' && !str_starts_with($declared, 'image/')) {
-					throw new ValidationException('Not an image: ' . $declared);
-				}
-			},
-		]);
-	} catch (GuzzleException $e) {
-		// Guzzle wraps whatever on_headers throws, which would hide our reason
-		// behind a generic transport error. Surface the original.
-		if ($e->getPrevious() instanceof ValidationException) {
-			throw $e->getPrevious();
-		}
-		throw $e;
-	}
+	// CURLOPT_MAXFILESIZE aborts the transfer when the response advertises a
+	// Content-Length over the cap; the strlen() check below backstops it.
+	$response = $client->get($url, [
+		'timeout' => 5,
+		'curl' => [CURLOPT_MAXFILESIZE => MAX_IMAGE_BYTES],
+	]);
 
 	$contents = (string)$response->getBody();
 	if (strlen($contents) > MAX_IMAGE_BYTES) {
 		throw new ValidationException('Image is too large');
 	}
 
-	// The bytes decide. Content-Type is chosen by the remote host, so it only
-	// ever short-circuits above - it never grants acceptance.
+	// The remote's declared Content-Type is never trusted: finfo sniffs the
+	// actual bytes and is the sole gate on what counts as an acceptable image.
 	$mime = (new \finfo(FILEINFO_MIME_TYPE))->buffer($contents);
 	if (!is_string($mime) || !isset(IMAGE_TYPES[$mime])) {
 		throw new ValidationException('Unsupported image type: ' . ($mime ?: 'unknown'));
