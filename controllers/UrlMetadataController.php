@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Framework\ControllerInterface;
+use Framework\Exceptions\ValidationException;
 use Framework\Responses\ResponseInterface;
 use Respect\Validation\Validator;
 use Utils\DOMParser;
@@ -24,17 +25,22 @@ class UrlMetadataController implements ControllerInterface
 		$html = fetchPageHTML($url);
 
 		$parser = new DOMParser($html);
-
+		$title = $parser->extractTitle();
+		$description = $parser->extractDescription();
 		$image_url = $parser->extractImage();
 		if ($image_url) {
 			$image_url = resolveUrl($image_url, $url);
 		}
 
+		if (!isset($title) && !isset($description) && !isset($image_url)) {
+			throw new ValidationException('Failed to extract metadata');
+		}
+
 		return success(
 			'Metadata fetched successfully',
 			[
-				'title' => $parser->extractTitle() ?? parse_url($url, PHP_URL_HOST),
-				'description' => $parser->extractDescription() ?? '',
+				'title' => $title ?? parse_url($url, PHP_URL_HOST),
+				'description' => $description ?? '',
 				'image' => $image_url ?? '',
 				'url' => $url
 			]
