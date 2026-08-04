@@ -427,27 +427,9 @@ function fetchMultiplePageHTML(array $urls): array
 
 	return [$pages, $failed_reasons];
 }
-/**
- * Media types we accept, mapped to the extension we store them as. Keyed by what
- * finfo reports for the actual bytes, so the alternative labels servers send
- * (image/jpg, image/pjpeg, image/x-png) need no entry - those bytes normalise to
- * these types. SVG is absent deliberately: it can carry script and would be a
- * stored XSS vector when served back inline.
- */
-const IMAGE_TYPES = [
-	'image/jpeg' => 'jpg',
-	'image/png' => 'png',
-	'image/gif' => 'gif',
-	'image/webp' => 'webp',
-	'image/bmp' => 'bmp',
-	'image/tiff' => 'tiff',
-	'image/avif' => 'avif',
-];
-
-const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 /**
- * Fetch a remote image and verify it is one of IMAGE_TYPES.
+ * Fetch a remote image and verify it is one of Image::TYPES.
  *
  * @return array{contents: string, mime: string, extension: string}
  * @throws ValidationException when the response is not an acceptable image
@@ -463,22 +445,22 @@ function fetchRemoteImage(string $url): array
 	// Content-Length over the cap; the strlen() check below backstops it.
 	$response = $client->get($url, [
 		'timeout' => 5,
-		'curl' => [CURLOPT_MAXFILESIZE => MAX_IMAGE_BYTES],
+		'curl' => [CURLOPT_MAXFILESIZE => Image::MAX_BYTES],
 	]);
 
 	$contents = (string)$response->getBody();
-	if (strlen($contents) > MAX_IMAGE_BYTES) {
+	if (strlen($contents) > Image::MAX_BYTES) {
 		throw new ValidationException('Image is too large');
 	}
 
 	// The remote's declared Content-Type is never trusted: finfo sniffs the
 	// actual bytes and is the sole gate on what counts as an acceptable image.
 	$mime = (new \finfo(FILEINFO_MIME_TYPE))->buffer($contents);
-	if (!is_string($mime) || !isset(IMAGE_TYPES[$mime])) {
+	if (!is_string($mime) || !Image::isAllowed($mime)) {
 		throw new ValidationException('Unsupported image type: ' . ($mime ?: 'unknown'));
 	}
 
-	return ['contents' => $contents, 'mime' => $mime, 'extension' => IMAGE_TYPES[$mime]];
+	return ['contents' => $contents, 'mime' => $mime, 'extension' => Image::extensionFor($mime)];
 }
 
 function saveImageToLocalPath($local_path, $image_contents): void

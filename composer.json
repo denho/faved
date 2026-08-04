@@ -16,6 +16,7 @@
   "require": {
     "guzzlehttp/guzzle": "^7.0",
     "respect/validation": "^2.4",
-    "ext-fileinfo": "*"
+    "ext-fileinfo": "*",
+    "ext-curl": "*"
   }
 }
