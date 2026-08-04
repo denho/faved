@@ -24,7 +24,7 @@ RUN composer install --no-dev --optimize-autoloader --prefer-dist --no-interacti
 # ––––––––––––––––––––––––––––––––––––––
 
 # Stage 3: Final runtime image
-FROM php:8.4-apache
+FROM php:8.5-apache
 
 # Install system dependencies
 RUN apt-get update && \
