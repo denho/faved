@@ -306,6 +306,8 @@ function getItemImageLocalFile($image_url, $item_id): ?string
 
 function getItemImageLocalDir($item_id): string
 {
+	$item_id = (string)$item_id;
+	ctype_digit($item_id) || throw new ValidationException('Invalid item id', 400);
 	return sprintf('%s/%s', Config::getImageStoragePath(), $item_id);
 }
 

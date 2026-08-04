@@ -17,7 +17,7 @@ class ImageFetchController implements ControllerInterface
 	public function validateInput(): Validator
 	{
 		return Validator::key('image-url', Validator::url()->setName('Image URL'))
-			->key('item-id', Validator::stringType(), false);
+			->key('item-id', Validator::digit()->notEmpty()->setName('Item ID'), false);
 	}
 
 	public function __invoke(array $input): ResponseInterface

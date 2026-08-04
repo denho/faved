@@ -15,9 +15,9 @@ class ItemsTagsUpdateController implements ControllerInterface
 {
 	public function validateInput(): Validator
 	{
-		return Validator::key('item-ids', Validator::arrayType()->each(Validator::intType())->setName('Item IDs'))
-			->key('tag-ids-all', Validator::arrayType()->each(Validator::intType())->setName('All Tags'))
-			->key('tag-ids-some', Validator::arrayType()->each(Validator::intType())->setName('Some Tags'));
+		return Validator::key('item-ids', Validator::arrayType()->notEmpty()->each(Validator::digit()->notEmpty())->setName('Item IDs'))
+			->key('tag-ids-all', Validator::arrayType()->each(Validator::digit()->notEmpty())->setName('All Tags'))
+			->key('tag-ids-some', Validator::arrayType()->each(Validator::digit()->notEmpty())->setName('Some Tags'));
 	}
 
 	public function __invoke(array $input): ResponseInterface
