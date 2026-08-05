@@ -6,9 +6,10 @@ use Framework\ControllerInterface;
 use Framework\Responses\MediaResponse;
 use Framework\Responses\ResponseInterface;
 use Respect\Validation\Validator;
-use function Utils\getItemImageLocalPath;
-use function Utils\getLocalFileContents;
-use function Utils\getRemoteImageContents;
+use function Utils\buildItemImageLocalPath;
+use function Utils\fetchRemoteImage;
+use function Utils\findItemImageLocalPath;
+use function Utils\getItemImageLocalFile;
 use function Utils\saveImageToLocalPath;
 
 class ImageFetchController implements ControllerInterface
@@ -16,7 +17,7 @@ class ImageFetchController implements ControllerInterface
 	public function validateInput(): Validator
 	{
 		return Validator::key('image-url', Validator::url()->setName('Image URL'))
-			->key('item-id', Validator::stringType(), false);
+			->key('item-id', Validator::digit()->notEmpty()->setName('Item ID'), false);
 	}
 
 	public function __invoke(array $input): ResponseInterface
@@ -26,8 +27,7 @@ class ImageFetchController implements ControllerInterface
 
 		// Get from local cache if item id is provided
 		if ($item_id) {
-			$image_local_path = getItemImageLocalPath($image_url, $item_id);
-			$contents = getLocalFileContents($image_local_path);
+			$contents = getItemImageLocalFile($image_url, $item_id);
 			if ($contents) {
 				return new MediaResponse($contents, 60 * 24 * 7 /*7 days*/);
 			}
@@ -35,19 +35,19 @@ class ImageFetchController implements ControllerInterface
 
 		// Fetch the image from the URL
 		try {
-			$contents = getRemoteImageContents($image_url);
+			$image = fetchRemoteImage($image_url);
 		} catch (\Exception) {
 			return new MediaResponse('', $item_id ? 60 : 0); // Return empty response on failure and cache for 1 hour if not preview
 		}
 
 		// Save contents to file if item id is provided
 		if ($item_id) {
-			$image_local_path = getItemImageLocalPath($image_url, $item_id);
-			saveImageToLocalPath($image_local_path, $contents);
-			return new MediaResponse($contents, 60 * 24 * 7 /*7 days*/);
+			$image_local_path = buildItemImageLocalPath($image_url, $item_id, $image['extension']);
+			saveImageToLocalPath($image_local_path, $image['contents']);
+			return new MediaResponse($image['contents'], 60 * 24 * 7 /*7 days*/);
 		}
 
 		// Do not cache if no item id is provided - it's a preview
-		return new MediaResponse($contents, 0);
+		return new MediaResponse($image['contents'], 0);
 	}
 }

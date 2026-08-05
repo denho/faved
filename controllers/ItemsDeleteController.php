@@ -8,18 +8,20 @@ use Framework\Exceptions\ValidationException;
 use Framework\Responses\ResponseInterface;
 use Framework\ServiceContainer;
 use Models\Repository;
+use Respect\Validation\Validator;
 use function Framework\success;
 use function Utils\removeItemImageDirectory;
 
 class ItemsDeleteController implements ControllerInterface
 {
+	public function validateInput(): Validator
+	{
+		return Validator::key('item-ids', Validator::arrayType()->notEmpty()->each(Validator::digit()->notEmpty())->setName('Item IDs'));
+	}
+
 	public function __invoke(array $input): ResponseInterface
 	{
-		$item_ids = $input['item-ids'] ?? null;
-
-		if (empty($item_ids) || !is_array($item_ids)) {
-			throw new ValidationException('Item IDs not provided or invalid');
-		}
+		$item_ids = $input['item-ids'];
 
 		$repository = ServiceContainer::get(Repository::class);;
 

@@ -16,7 +16,7 @@ class ItemsUpdateController implements ControllerInterface
 {
 	public function validateInput(): Validator
 	{
-		return Validator::key('item-id', Validator::stringType()->notEmpty())
+		return Validator::key('item-id', Validator::digit()->notEmpty())
 			->key('title', Validator::stringType()->notEmpty())
 			->key('url', Validator::url()->setName('URL'))
 			->key('description', Validator::stringType()->setName('Description'))
@@ -32,7 +32,7 @@ class ItemsUpdateController implements ControllerInterface
 		$tag_ids = processInputTags($input['tags']);
 
 		// Save item in DB
-		$item_id = $_GET['item-id'];
+		$item_id = $input['item-id'];
 		$image = $input['image'];
 
 		$repository = ServiceContainer::get(Repository::class);

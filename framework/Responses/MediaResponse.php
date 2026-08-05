@@ -15,8 +15,15 @@ class MediaResponse implements ResponseInterface
 		$finfo = new \finfo(FILEINFO_MIME_TYPE);
 		$mime = $finfo->buffer($contents);
 
+		// Anti-sniffing XSS guard: recognised images keep their type, anything else
+		// downloads as octet-stream. Pairs with the nosniff header below.
+		if (!is_string($mime) || !\Utils\Image::isAllowed($mime)) {
+			$mime = 'application/octet-stream';
+		}
+
 		http_response_code(200);
 		header("Content-Type: {$mime}");
+		header('X-Content-Type-Options: nosniff');
 		header("Content-Length: " . strlen($contents));
 
 		// Set caching headers

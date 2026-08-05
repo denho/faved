@@ -344,9 +344,9 @@ const EditItemForm = observer(
 
               <Separator className="my-5" />
 
-              <div className="grid gap-3">{renderTextareaField('comments', 'Notes')}</div>
-
               <div className="grid gap-3">{renderTagsField()}</div>
+
+              <div className="grid gap-3">{renderTextareaField('comments', 'Notes')}</div>
 
               {item && (
                 <div className="grid-cols-2 gap-3 space-y-4 sm:grid sm:space-y-0">
