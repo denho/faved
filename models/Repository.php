@@ -416,6 +416,24 @@ class Repository
 		if (!$this->checkTagIndexExists() && !$this->createTagIndex()) {
 			throw new Exception('Failed to create index on tags');
 		}
+
+		if (!$this->repairOrphanedTagParents()) {
+			throw new Exception('Failed to repair orphaned tags');
+		}
+	}
+
+	public function repairOrphanedTagParents(): bool
+	{
+		$stmt = $this->pdo->prepare(
+			'UPDATE tags
+			SET parent = 0, updated_at = :updated_at
+			WHERE parent != 0
+			AND NOT EXISTS (SELECT 1 FROM tags AS parent_tag WHERE parent_tag.id = tags.parent)'
+		);
+
+		return $stmt->execute([
+			':updated_at' => date('Y-m-d H:i:s'),
+		]);
 	}
 
 	/**
