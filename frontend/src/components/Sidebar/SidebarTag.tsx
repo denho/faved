@@ -262,7 +262,12 @@ const TagEditForm = ({ tag, setIsEditOpen }: { tag: TagType; setIsEditOpen: (boo
               setNewTagParent(tagID as number);
             }}
             selectedTagIDs={[newTagParent]}
-            excludedTagIDs={[tag.id]}
+            excludedTagIDs={[
+              tag.id,
+              ...store.tagsArray
+                .filter((candidateTag) => candidateTag.fullPathIDs.startsWith(`${tag.fullPathIDs}/`))
+                .map((candidateTag) => candidateTag.id),
+            ]}
           />
         </Field>
         <Field orientation="vertical" className="gap-1.5">

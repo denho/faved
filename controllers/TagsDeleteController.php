@@ -28,9 +28,21 @@ class TagsDeleteController implements ControllerInterface
 			throw new ValidationException("Tag with ID $tag_id does not exist");
 		}
 
-		// Delete all child tags as well
 		$tags_by_parent = groupTagsByParent($all_tags);
-		$tags_to_delete = [$tag_id, ...$tags_by_parent[$tag_id] ?? []];
+		$tags_to_delete = [];
+		$tag_ids_to_visit = [(int)$tag_id];
+
+		while (!empty($tag_ids_to_visit)) {
+			$current_tag_id = array_pop($tag_ids_to_visit);
+			if (in_array($current_tag_id, $tags_to_delete, true)) {
+				continue;
+			}
+
+			$tags_to_delete[] = $current_tag_id;
+			foreach ($tags_by_parent[$current_tag_id] ?? [] as $child_tag_id) {
+				$tag_ids_to_visit[] = $child_tag_id;
+			}
+		}
 
 		// Delete tags associations with items
 		$repository = ServiceContainer::get(Repository::class);

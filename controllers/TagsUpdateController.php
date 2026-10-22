@@ -24,20 +24,37 @@ class TagsUpdateController implements ControllerInterface
 	{
 		$tag_id = (int)$input['tag-id'];
 
-		if ($input['parent'] === 0) {
+		if ((int)$input['parent'] === 0) {
 			$parent_id = 0;
 		} else {
 			[$parent_id] = processInputTags([$input['parent']]);
-		}
-
-		if ($tag_id === $parent_id) {
-			throw new \Exception('Tag cannot be the same as parent');
 		}
 
 		$tag_title = trim($input['title']);
 		$tag_description = trim($input['description']);
 
 		$repository = ServiceContainer::get(Repository::class);
+		$all_tags = $repository->getTags();
+
+		if (!isset($all_tags[$tag_id])) {
+			throw new \Exception('Tag does not exist');
+		}
+
+		$current_parent_id = $parent_id;
+		$visited_parent_ids = [];
+		while ($current_parent_id !== 0) {
+			if ($current_parent_id === $tag_id) {
+				throw new \Exception('Tag cannot be its own parent or child');
+			}
+
+			if (isset($visited_parent_ids[$current_parent_id]) || !isset($all_tags[$current_parent_id])) {
+				throw new \Exception('Invalid tag parent');
+			}
+
+			$visited_parent_ids[$current_parent_id] = true;
+			$current_parent_id = (int)$all_tags[$current_parent_id]['parent'];
+		}
+
 		$repository->updateTag(
 			$tag_id,
 			$tag_title,
