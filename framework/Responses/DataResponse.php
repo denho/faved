@@ -23,6 +23,11 @@ class DataResponse implements ResponseInterface
 		header('Access-Control-Max-Age: 86400');
 
 		// Output the JSON data
-		echo json_encode($this->data);
+		$json = json_encode($this->data, JSON_INVALID_UTF8_SUBSTITUTE | JSON_UNESCAPED_UNICODE);
+		if ($json === false) {
+			http_response_code(500);
+			$json = json_encode(['error' => json_last_error_msg()]);
+		}
+		echo $json;
 	}
 }
